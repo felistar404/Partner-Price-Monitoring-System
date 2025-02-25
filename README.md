@@ -29,6 +29,9 @@ This project is a PHP-based system designed for internal use by a company that c
 
 ### Steps
 
+- **Database initizations**:
+  - Run init.sql once
+  - 
 
 ---
 
