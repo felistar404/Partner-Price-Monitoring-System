@@ -1,9 +1,16 @@
-                    ----- create db & tables -----
+--              --- CREATE DB & TABLES -----
 CREATE DATABASE IF NOT EXISTS price_monitoring_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE price_monitoring_system;
 
-DROP TABLE IF EXISTS
+DROP TABLE IF EXISTS platforms;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS merchants;
+DROP TABLE IF EXISTS platform_merchant_mappings;
+DROP TABLE IF EXISTS product_url_mappings;
+DROP TABLE IF EXISTS price_records;
+DROP TABLE IF EXISTS crawl_logs;
+DROP TABLE IF EXISTS refresh_cooldowns;
 
 -- platforms
 CREATE TABLE platforms (
@@ -15,22 +22,22 @@ CREATE TABLE platforms (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- product categorization
-CREATE TABLE product_categories (
-    category_id INT AUTO_INCREMENT PRIMARY KEY,
-    category_name VARCHAR(100) NOT NULL,
-    parent_id INT DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (parent_id) REFERENCES product_categories(category_id) ON DELETE SET NULL
-) ENGINE=InnoDB;
+-- -- product categorization
+-- CREATE TABLE product_categories (
+--     category_id INT AUTO_INCREMENT PRIMARY KEY,
+--     category_name VARCHAR(100) NOT NULL,
+--     parent_id INT DEFAULT NULL,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     FOREIGN KEY (parent_id) REFERENCES product_categories(category_id) ON DELETE SET NULL
+-- ) ENGINE=InnoDB;
 
 -- product details
 CREATE TABLE products (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
+    -- category_id INT,
     product_name VARCHAR(255) NOT NULL,
     product_model VARCHAR(100) NOT NULL,
-    category_id INT,
     reference_price DECIMAL(10, 2) NOT NULL,
     min_acceptable_price DECIMAL(10, 2) NOT NULL,
     max_acceptable_price DECIMAL(10, 2) NOT NULL,
@@ -39,7 +46,7 @@ CREATE TABLE products (
     product_image VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES product_categories(category_id) ON DELETE SET NULL,
+    -- FOREIGN KEY (category_id) REFERENCES product_categories(category_id) ON DELETE SET NULL,
     UNIQUE INDEX (product_model)
 ) ENGINE=InnoDB;
 
@@ -86,7 +93,7 @@ CREATE TABLE product_url_mappings (
     UNIQUE INDEX (product_id, platform_id)
 ) ENGINE=InnoDB;
 
--- 价格记录表(存储爬取的价格数据)
+-- price_records
 CREATE TABLE price_records (
     record_id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
@@ -95,7 +102,7 @@ CREATE TABLE price_records (
     price DECIMAL(10, 2),
     currency VARCHAR(10) DEFAULT 'HKD',
     price_status ENUM('normal', 'overpriced', 'underpriced', 'missing') NOT NULL,
-    is_available BOOLEAN DEFAULT TRUE, -- 产品是否在该商家处有售
+    is_available BOOLEAN DEFAULT TRUE COMMENT 'Ensure the merchant sells the product',
     record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE CASCADE,
@@ -103,7 +110,7 @@ CREATE TABLE price_records (
     INDEX (record_date)
 ) ENGINE=InnoDB;
 
--- 爬取日志表(记录每次爬取的详情)
+-- crawl logs
 CREATE TABLE crawl_logs (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     platform_id INT NOT NULL,
@@ -117,33 +124,31 @@ CREATE TABLE crawl_logs (
     FOREIGN KEY (platform_id) REFERENCES platforms(platform_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 通知日志表(记录发送通知的详情)
-CREATE TABLE notification_logs (
-    notification_id INT AUTO_INCREMENT PRIMARY KEY,
-    merchant_id INT NOT NULL,
-    product_id INT NOT NULL,
-    notification_type ENUM('missing_price', 'overpriced', 'underpriced') NOT NULL,
-    message TEXT NOT NULL,
-    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('pending', 'sent', 'failed') DEFAULT 'pending',
-    error_message TEXT,
-    FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+-- -- notification logs (To ensure not to duplicate the notification email in short period of time - Automation)
+-- CREATE TABLE notification_logs (
+--     notification_id INT AUTO_INCREMENT PRIMARY KEY,
+--     merchant_id INT NOT NULL,
+--     product_id INT NOT NULL,
+--     notification_type ENUM('missing_price', 'overpriced', 'underpriced') NOT NULL,
+--     message TEXT NOT NULL,
+--     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     status ENUM('pending', 'sent', 'failed') DEFAULT 'pending',
+--     error_message TEXT,
+--     FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE CASCADE,
+--     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+-- ) ENGINE=InnoDB;
 
--- 刷新冷却时间表(管理刷新功能的冷却时间)
+-- cooldown references (global ban)
 CREATE TABLE refresh_cooldowns (
     cooldown_id INT AUTO_INCREMENT PRIMARY KEY,
     platform_id INT NOT NULL,
-    product_id INT DEFAULT NULL, -- NULL表示整个平台的冷却
-    merchant_id INT DEFAULT NULL, -- NULL表示所有商家
     last_refresh_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    next_available_time TIMESTAMP, -- 下次可用时间
-    cooldown_hours INT DEFAULT 24, -- 冷却时间(小时)
+    next_available_time TIMESTAMP COMMENT 'Based on this timestamp to decide whether or not to perform refresh',
+    cooldown_hours INT DEFAULT 24 COMMENT 'Default in 24 hrs',
     FOREIGN KEY (platform_id) REFERENCES platforms(platform_id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE SET NULL,
-    FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE SET NULL,
-    UNIQUE INDEX (platform_id, product_id, merchant_id)
+    -- FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE SET NULL,
+    -- FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE SET NULL,
+    UNIQUE INDEX (platform_id)
 ) ENGINE=InnoDB;
 
 -- -- users
@@ -171,15 +176,3 @@ CREATE TABLE refresh_cooldowns (
 --     ip_address VARCHAR(45),
 --     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 -- ) ENGINE=InnoDB;
-
-                    ----- DATA INIT -----
-
--- data init for platform
-INSERT INTO platforms (platform_name, platform_url) VALUES 
-('Price.com.hk', 'https://www.price.com.hk/'),
-('WCSLMall', 'https://www.wcslmall.com/'),
-('CentralField', 'https://www.centralfield.com/');
-
--- -- data init for users
--- INSERT INTO users (username, password, email, role) VALUES 
--- ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@example.com', 'admin');
