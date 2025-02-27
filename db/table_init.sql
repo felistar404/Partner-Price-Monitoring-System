@@ -101,7 +101,7 @@ CREATE TABLE price_records (
     price DECIMAL(10, 2),
     currency VARCHAR(10) DEFAULT 'HKD',
     price_status ENUM('normal', 'overpriced', 'underpriced', 'missing') NOT NULL,
-    is_available BOOLEAN DEFAULT TRUE COMMENT 'Ensure the merchant sells the product',
+    update_date TIMESTAMP DEFAULT NULL,
     record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE CASCADE,
@@ -113,14 +113,11 @@ CREATE TABLE price_records (
 CREATE TABLE crawl_logs (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     platform_id INT NOT NULL,
-    start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP,
-    status ENUM('running', 'completed', 'failed') NOT NULL,
+    crawl_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('completed', 'failed') NOT NULL,
     crawled_products INT DEFAULT 0,
-    success_count INT DEFAULT 0,
-    error_count INT DEFAULT 0,
     error_message TEXT,
-    FOREIGN KEY (platform_id) REFERENCES platforms(platform_id) ON DELETE CASCADE
+    crawl_description TEXT,
 ) ENGINE=InnoDB;
 
 -- -- notification logs (To ensure not to duplicate the notification email in short period of time - Automation)

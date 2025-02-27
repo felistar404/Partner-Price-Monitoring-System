@@ -75,8 +75,6 @@ function searchPriceComCategoryAndBrand($category,$brand,$page,$productData){
 		$pagePos=strpos($nextPage,"page=");
 		$nextPage=substr($nextPage, $pagePos+strlen("page="));
 	}
-
-
 	foreach($html->find('.club-list-row') as $productRow) {
         foreach($productRow->find('.column-02 .line-01') as $productName) {
         	$productData[$productCount] = new stdClass();

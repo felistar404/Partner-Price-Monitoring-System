@@ -4,71 +4,17 @@ require_once '../config/conn.php';
 require_once '../lib/simple_html_dom.php';
 
 // Base product URL
-// $product_id = "606102";
-// $base_url = "https://www.price.com.hk/product.php?p=" . $product_id;
+$product_id = "606102";
+$base_url = "https://www.price.com.hk/product.php?p=" . $product_id;
 
-// retrieve_and_display($base_url, $all_merchants);
+// Array to store all merchant data across all pages
+$all_merchants = array();
 
-// Init
-$product_query = "SELECT * FROM products WHERE product_status = 'active'";
-$stmt = $conn->prepare($product_query);
-$stmt->execute();
-$product_result = $stmt->get_result();
-$p = $product_result->fetch_assoc();
-$stmt->close();
+retrieve_and_display($base_url, $all_merchants);
 
-if ($p->num_rows === 0) {
-    exit("All products are inactive. System terminates.");
-}
-
-// If $p more than 0, meaning there are products waiting for monitoring.
-foreach ($p['produdct_id'] as $p_id) {
-    echo "Product ID: ". $p_id ."\n";
-    // Using $p['product_id'] to check existing sets of platform_id & platform_product_id (白話就是拿商品ID尋找它們屬於那些平台以及它對那些平台的ID是甚麼)
-    $product_mapping_query = "SELECT platform_id, platform_product_id WHERE product_id = ?";
-    $stmt = $conn->prepare($product_mapping_query);
-    $stmt->bind_param("i", $p_id);
-    $stmt->execute();
-    $product_mapping_result = $stmt->get_result();
-    $pmr = $product_mapping_result->fetch_assoc();
-    $stmt->close();
-
-    // If statements check if target product does belong with any platform.
-    if ($pmr->num_rows != 0) {
-        $product_mapping_sets = [];
-        foreach ($pmr as $item) {
-            $platform_id = $item['platform_id'];
-            $platform_product_id = $item['platform_product_id'];
-            $platform_query = "SELECT platform_url, platform_url_price WHERE platform_id = ? AND platform_status = 'active'";
-            $stmt = $conn->prepare($platform_query);
-            $stmt->bind_param("i", $platform_id);
-            $stmt->execute();
-            $platform_result = $stmt->get_result();
-            $pr = $platform_result->fetch_assoc();
-            $stmt->close();
-
-            /* 
-            * Retrieved all necessary info to perform crawing for one product and one platform (recursion)
-            * URL formed in three consecutive parts. [prefix_url] + [suffix_url] + [Product_ID] E.g.
-            * prefix_url = https://www.price.com.hk/ 
-            * suffix_url = product.php?p= 
-            * product_id = 606102
-            */
-            $url = $pr['platform_url'] . $pr['platform_url_price'] . $platform_product_id;
-            retrieve_and_display($url);
-            // perform comparison and alert system.
-            // call function to record crawl_log.
-            // 
-        } 
-    }
-}
-
-function retrieve_and_display($base_url) {
-    $all_merchants = array();
-    global $conn;
+function retrieve_and_display($base_url, $all_merchants) {
     $html = fetch_url_content($base_url);
     if ($html) {
-        // process the first page
         $total_pages = retrieve_total_pages($html);
         echo "<h3>Total pages: $total_pages</h3>";
         
@@ -77,18 +23,18 @@ function retrieve_and_display($base_url) {
         $all_merchants = array_merge($all_merchants, $page_results);
         
         // process of remaining pages
-        for ($page = 2; $page <= $total_pages; $page++) {
-            $page_url = $base_url . "&page=" . $page;
-            echo "<p>Fetching page $page: $page_url</p>";
-
-            // $page_html = fetch_url_content($page_url);
-            // if ($page_html) {
-            //     $page_results = retrieve_merchant_price_id($page_html);
-            //     $all_merchants = array_merge($all_merchants, $page_results);
-            // } else {
-            //     echo "<p>Failed to fetch page $page</p>";
-            // }
-        } 
+        // for ($page = 2; $page <= $total_pages; $page++) {
+        //     $page_url = $base_url . "&page=" . $page;
+        //     echo "<p>Fetching page $page: $page_url</p>";
+            
+        //     $page_html = fetch_url_content($page_url);
+        //     if ($page_html) {
+        //         $page_results = retrieve_merchant_price_id($page_html);
+        //         $all_merchants = array_merge($all_merchants, $page_results);
+        //     } else {
+        //         echo "<p>Failed to fetch page $page</p>";
+        //     }
+        // }
         
         // Display all the combined results
         echo "<h3>All Merchants (Total: " . count($all_merchants) . ")</h3>";
@@ -103,12 +49,8 @@ function retrieve_and_display($base_url) {
             echo "<td>" . (isset($item['updateDate']) ? $item['updateDate'] : 'N/A') . "</td>";
             echo "</tr>";
         }
+        
         echo "</table>";
-        // record the crawl_log into db
-        // $log_query = "INSERT INTO crawl_logs (platform_id, crawl_time, status, crawled_products, crawl_description) VALUES (?, NOW(), completed, )";
-        // $stmt = $conn->prepare($log_query);
-        // $stmt->bind_param("i", $_SESSION[""], $_SESSION[""]),
-
     } else {
         echo "Failed to fetch initial page!";
     }
@@ -137,9 +79,9 @@ function fetch_url_content($url) {
         return false;
     }
     
-    // echo '<div style="white-space: pre-wrap; word-wrap: break-word;">' . htmlspecialchars($html) . '</div>';
     return $html;
 }
+
 // For price.com.hk
 function retrieve_total_pages($Response) {
     $merchants_per_page = 20;
@@ -234,4 +176,3 @@ function retrieve_merchant_price_id($html) {
     return $productData;
 }
 ?>
-
