@@ -14,54 +14,56 @@ $product_query = "SELECT * FROM products WHERE product_status = 'active'";
 $stmt = $conn->prepare($product_query);
 $stmt->execute();
 $product_result = $stmt->get_result();
-$p = $product_result->fetch_assoc();
+$p = $product_result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-if ($p->num_rows === 0) {
+if ($product_result->num_rows === 0) {
     exit("All products are inactive. System terminates.");
 }
 
 // If $p more than 0, meaning there are products waiting for monitoring.
-foreach ($p['produdct_id'] as $p_id) {
-    echo "Product ID: ". $p_id ."\n";
+foreach ($p as $product) {
+    echo "Product ID: " . $product['product_id'] . "<br>";
+    
     // Using $p['product_id'] to check existing sets of platform_id & platform_product_id (白話就是拿商品ID尋找它們屬於那些平台以及它對那些平台的ID是甚麼)
-    $product_mapping_query = "SELECT platform_id, platform_product_id WHERE product_id = ?";
+    $product_mapping_query = "SELECT platform_id, platform_product_id FROM product_url_mappings WHERE product_id = ?";
     $stmt = $conn->prepare($product_mapping_query);
-    $stmt->bind_param("i", $p_id);
+    $stmt->bind_param("i", $product['product_id']);
     $stmt->execute();
     $product_mapping_result = $stmt->get_result();
-    $pmr = $product_mapping_result->fetch_assoc();
-    $stmt->close();
-
+    
     // If statements check if target product does belong with any platform.
-    if ($pmr->num_rows != 0) {
-        $product_mapping_sets = [];
-        foreach ($pmr as $item) {
-            $platform_id = $item['platform_id'];
-            $platform_product_id = $item['platform_product_id'];
-            $platform_query = "SELECT platform_url, platform_url_price WHERE platform_id = ? AND platform_status = 'active'";
-            $stmt = $conn->prepare($platform_query);
-            $stmt->bind_param("i", $platform_id);
-            $stmt->execute();
-            $platform_result = $stmt->get_result();
-            $pr = $platform_result->fetch_assoc();
-            $stmt->close();
-
-            /* 
-            * Retrieved all necessary info to perform crawing for one product and one platform (recursion)
-            * URL formed in three consecutive parts. [prefix_url] + [suffix_url] + [Product_ID] E.g.
-            * prefix_url = https://www.price.com.hk/ 
-            * suffix_url = product.php?p= 
-            * product_id = 606102
-            */
-            $url = $pr['platform_url'] . $pr['platform_url_price'] . $platform_product_id;
-            retrieve_and_display($url);
-            // perform comparison and alert system.
-            // call function to record crawl_log.
-            // 
-        } 
+    if ($product_mapping_result->num_rows > 0) {
+        // Fetch all mappings for this product
+        while ($mapping = $product_mapping_result->fetch_assoc()) {
+            $platform_id = $mapping['platform_id'];
+            $platform_product_id = $mapping['platform_product_id'];
+            echo "|Test| Platform ID: " . $platform_id . ", Platform Product ID: " . $platform_product_id . "<br>";
+            $platform_query = "SELECT platform_url, platform_url_price FROM platforms WHERE platform_id = ? AND platform_status = 'active'";
+            $platform_stmt = $conn->prepare($platform_query);
+            $platform_stmt->bind_param("i", $platform_id);
+            $platform_stmt->execute();
+            $platform_result = $platform_stmt->get_result();
+            
+            if ($platform_result->num_rows > 0) {
+                $platform = $platform_result->fetch_assoc();
+                $url = $platform['platform_url'] . $platform['platform_url_price'] . $platform_product_id;
+                echo "|Test| Complete URL: " . $url . "<br>";
+                // Uncomment to actually process the URL
+                // retrieve_and_display($url);
+                // perform comparison and alert system.
+                // call function to record crawl_log.
+            } else {
+                echo "Platform ID " . $platform_id . " is inactive or does not exist<br>";
+            }
+            $platform_stmt->close();
+        }
+    } else {
+        echo "No platform mappings found for product ID: " . $product['product_id'] . "<br>";
     }
+    $stmt->close();
 }
+
 
 function retrieve_and_display($base_url) {
     $all_merchants = array();
