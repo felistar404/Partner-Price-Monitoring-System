@@ -98,15 +98,23 @@ CREATE TABLE price_records (
     product_id INT NOT NULL,
     merchant_id INT NOT NULL,
     platform_id INT NOT NULL,
+    parent_id VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2),
     currency VARCHAR(10) DEFAULT 'HKD',
     price_status ENUM('normal', 'overpriced', 'underpriced', 'missing') NOT NULL,
-    update_date TIMESTAMP DEFAULT NULL,
-    record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reference_key VARCHAR(255),
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE CASCADE,
     FOREIGN KEY (platform_id) REFERENCES platforms(platform_id) ON DELETE CASCADE,
-    INDEX (record_date)
+    FOREIGN KEY (main_records) REFERENCES main_records(parent_id) ON DELETE CASCADE,
+    INDEX (record_id)
+) ENGINE=InnoDB;
+
+-- main_record to display newest data for correct batches.
+CREATE TABLE main_records (
+    record_id INT AUTO_INCREMENT PRIMARY KEY,
+    reference_key VARCHAR(255) DEFAULT NULL,
+    update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- crawl logs
@@ -117,8 +125,10 @@ CREATE TABLE crawl_logs (
     status ENUM('completed', 'failed') NOT NULL,
     crawled_products INT DEFAULT 0,
     error_message TEXT,
-    crawl_description TEXT,
+    crawl_description TEXT
 ) ENGINE=InnoDB;
+
+
 
 -- -- notification logs (To ensure not to duplicate the notification email in short period of time - Automation)
 -- CREATE TABLE notification_logs (

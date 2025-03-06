@@ -1,6 +1,6 @@
 <?php
 
-require_once '../config/conn.php';
+require_once '../../config/conn.php';
 
 // URLs
 $test_url = "https://www.price.com.hk/product.php?p=606102";
@@ -10,7 +10,7 @@ $test_url4 = "https://www.price.com.hk/product.php?p=346731";
 $cookieFile = '../tmp/cookie.txt';
 
 // Initialize Curl session
-$ch = curl_init($test_url4);
+// $ch = curl_init($test_url4);
 
 // Useragents
 $userAgents = [
@@ -21,30 +21,32 @@ $userAgents = [
 $userAgent = $userAgents[array_rand($userAgents)];
 
 // Set options
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-curl_setopt($ch, CURLOPT_MAXREDIRS,      4);
-curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
-curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);;
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language: en-US,en;q=0.5',
-    'Connection: keep-alive',
-    'Upgrade-Insecure-Requests: 1',
-    'Referer: https://www.google.com/'
-]);
+// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+// curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+// curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+// curl_setopt($ch, CURLOPT_MAXREDIRS,      4);
+// curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
+// curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);;
+// curl_setopt($ch, CURLOPT_HTTPHEADER, [
+//     'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+//     'Accept-Language: en-US,en;q=0.5',
+//     'Connection: keep-alive',
+//     'Upgrade-Insecure-Requests: 1',
+//     'Referer: https://www.google.com/'
+// ]);
 
 // Start Curl session
-$response = curl_exec($ch);
+$response = shell_exec('node fetch.js');
+echo $response;
 
 // Error handling
-if (curl_errno($ch)) {
-    echo "cURL Error: " . curl_error($ch);
+if (!$response) {
+    // echo "cURL Error: " . curl_error($ch);
+    echo('123');
 } else {
     // check HTTP status
-    $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    // $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     echo "HTTP Status Code: $httpStatus<br><br>";
     $cleanedResponse = preg_replace('/\s+/', '', $response);
     // echo "<h1>Raw HTML Response from $test_url:</h1>";
@@ -96,5 +98,5 @@ function retrieve_merchant_price_id($cleanedResponse) {
 }
 
 // Close the cURL session
-curl_close($ch);
+// curl_close($ch);
 ?>
