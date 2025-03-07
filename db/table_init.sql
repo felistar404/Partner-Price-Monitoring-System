@@ -92,6 +92,14 @@ CREATE TABLE product_url_mappings (
     UNIQUE INDEX (product_id, platform_id)
 ) ENGINE=InnoDB;
 
+-- main_record to display newest data for correct batches.
+CREATE TABLE main_records (
+    record_id INT AUTO_INCREMENT PRIMARY KEY,
+    reference_key VARCHAR(255) DEFAULT NULL,
+    update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE INDEX (reference_key)
+) ENGINE=InnoDB;
+
 -- price_records
 CREATE TABLE price_records (
     record_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -101,20 +109,13 @@ CREATE TABLE price_records (
     parent_id VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2),
     currency VARCHAR(10) DEFAULT 'HKD',
-    price_status ENUM('normal', 'overpriced', 'underpriced', 'missing') NOT NULL,
+    price_status ENUM('normal', 'overpriced', 'underpriced', 'missing') NOT NULL COMMENT 'Based on this indicator to provide status',
     reference_key VARCHAR(255),
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE CASCADE,
     FOREIGN KEY (platform_id) REFERENCES platforms(platform_id) ON DELETE CASCADE,
-    FOREIGN KEY (main_records) REFERENCES main_records(parent_id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES main_records(reference_key) ON DELETE CASCADE,
     INDEX (record_id)
-) ENGINE=InnoDB;
-
--- main_record to display newest data for correct batches.
-CREATE TABLE main_records (
-    record_id INT AUTO_INCREMENT PRIMARY KEY,
-    reference_key VARCHAR(255) DEFAULT NULL,
-    update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- crawl logs
@@ -127,8 +128,6 @@ CREATE TABLE crawl_logs (
     error_message TEXT,
     crawl_description TEXT
 ) ENGINE=InnoDB;
-
-
 
 -- -- notification logs (To ensure not to duplicate the notification email in short period of time - Automation)
 -- CREATE TABLE notification_logs (
@@ -156,29 +155,3 @@ CREATE TABLE refresh_cooldowns (
     -- FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE SET NULL,
     UNIQUE INDEX (platform_id)
 ) ENGINE=InnoDB;
-
--- -- users
--- CREATE TABLE users (
---     user_id INT AUTO_INCREMENT PRIMARY KEY,
---     username VARCHAR(50) NOT NULL,
---     password VARCHAR(255) NOT NULL,
---     email VARCHAR(255) NOT NULL,
---     role ENUM('admin', 'manager', 'viewer') NOT NULL DEFAULT 'viewer',
---     is_active BOOLEAN DEFAULT TRUE,
---     last_login TIMESTAMP NULL,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
---     UNIQUE INDEX (username),
---     UNIQUE INDEX (email)
--- ) ENGINE=InnoDB;
-
--- -- admin log
--- CREATE TABLE admin_action_logs (
---     log_id INT AUTO_INCREMENT PRIMARY KEY,
---     user_id INT NOT NULL,
---     action_type VARCHAR(50) NOT NULL,
---     action_description TEXT NOT NULL,
---     performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     ip_address VARCHAR(45),
---     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
--- ) ENGINE=InnoDB;

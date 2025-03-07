@@ -2,13 +2,20 @@
 
 require_once '../config/conn.php';
 require_once '../lib/simple_html_dom.php';
+require_once 'price_comparison.php';
 
 // Init
+
+$reference_key = bin2hex(random_bytes(16));
+
 $product_query = "SELECT product_id, product_name, product_model, reference_price, 
                     min_acceptable_price, max_acceptable_price, product_description 
                     FROM products 
                     WHERE product_status = 'active'";
 $stmt = $conn->prepare($product_query);
+if (!$stmt) {
+    exit("Prepare failed: (" . $conn->errno . ") " . $conn->error);
+}
 $stmt->execute();
 $product_result = $stmt->get_result();
 $p = $product_result->fetch_all(MYSQLI_ASSOC);
@@ -30,6 +37,9 @@ foreach ($p as $product) {
                     JOIN platforms p ON pum.platform_id = p.platform_id 
                     WHERE pum.product_id = ? AND p.platform_status = 'active'";
     $stmt = $conn->prepare($mapping_query);
+    if (!$stmt) {
+        exit("Prepare failed: (" . $conn->errno . ") " . $conn->error);
+    }
     $stmt->bind_param("i", $product['product_id']);
     $stmt->execute();
     $product_mapping_result = $stmt->get_result();
@@ -65,13 +75,23 @@ foreach ($p as $product) {
         echo "--------------------------------------------------------------------------<br>";
 
         //test
-        exit("terminates");
+        // exit("terminates");
 
         // mimic human behavior
-        sleep(rand(5, 7));
+        usleep(rand(5000000, 7000000));
 
     }
 }
+
+// stored data in db
+$insert_query = "INSERT INTO main_records (reference_key, update_date) VALUES (?, NOW())";
+$stmt = $conn->prepare($insert_query);
+if (!$stmt) {
+    exit("Prepare failed: (" . $conn->errno . ") " . $conn->error);
+}
+$stmt->bind_param("s", $reference_key);
+$stmt->execute();
+$stmt->close();
 
 function retrieve_and_display($base_url) {
     $all_merchants = array();
@@ -90,8 +110,8 @@ function retrieve_and_display($base_url) {
         for ($page = 2; $page <= $total_pages; $page++) {
             $page_url = $base_url . "&page=" . $page;
             echo "<p>Fetching page $page: $page_url</p>";
-            sleep(rand(5, 7));
-            // not yet tested ->
+            usleep(rand(5000000, 7000000));
+            // tested
             $page_html = fetch_url_content($page_url);
             if ($page_html) {
                 $page_results = retrieve_merchant_price_id($page_html);
