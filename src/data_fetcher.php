@@ -78,7 +78,7 @@ foreach ($p as $product) {
         // exit("terminates");
 
         // mimic human behavior
-        usleep(rand(5000000, 7000000));
+        random_fluctuation_delay();
 
     }
 }
@@ -92,6 +92,13 @@ if (!$stmt) {
 $stmt->bind_param("s", $reference_key);
 $stmt->execute();
 $stmt->close();
+
+function random_fluctuation_delay() {
+    $base_delay = rand(3000000, 8000000);
+    $fluctuation = rand(-500000, 500000);
+    usleep($base_delay + $fluctuation);
+}
+
 
 function retrieve_and_display($base_url) {
     $all_merchants = array();
@@ -110,7 +117,7 @@ function retrieve_and_display($base_url) {
         for ($page = 2; $page <= $total_pages; $page++) {
             $page_url = $base_url . "&page=" . $page;
             echo "<p>Fetching page $page: $page_url</p>";
-            usleep(rand(5000000, 7000000));
+            random_fluctuation_delay();
             // tested
             $page_html = fetch_url_content($page_url);
             if ($page_html) {
