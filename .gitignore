@@ -1,4 +1,5 @@
 node_modules/
 notes/
-prototype/
+test/
 reference/
+tmp/

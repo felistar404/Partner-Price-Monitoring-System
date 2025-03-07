@@ -78,7 +78,7 @@ foreach ($p as $product) {
         // exit("terminates");
 
         // mimic human behavior
-        random_fluctuation_delay();
+        delay_patterns();
 
     }
 }
@@ -93,17 +93,34 @@ $stmt->bind_param("s", $reference_key);
 $stmt->execute();
 $stmt->close();
 
-function random_fluctuation_delay() {
-    $base_delay = rand(3000000, 8000000);
-    $fluctuation = rand(-500000, 500000);
-    usleep($base_delay + $fluctuation);
+function delay_patterns($context = 'default') {
+    $delays = [
+        'default' => [5000000, 10000000],       // 5-10 seconds
+        'between_products' => [12000000, 17000000], // 12-17 seconds
+        'between_pages' => [12000000, 17000000]    // 12-17 seconds
+    ];
+    
+    $range = $delays[$context] ?? $delays['default'];
+    
+    $base = rand($range[0], $range[1]);
+    
+    // fluctuation (±10%)
+    $fluctuation = rand(-$base/10, $base/10);
+    
+    $total = $base + $fluctuation;
+    usleep($total);
+    
+    if ($total > 30000000) {
+        echo ".";
+        flush();
+    }
 }
-
 
 function retrieve_and_display($base_url) {
     $all_merchants = array();
     global $conn;
     $html = fetch_url_content($base_url);
+
     if ($html) {
         // process the first page
         $total_pages = retrieve_total_pages($html);
@@ -117,7 +134,7 @@ function retrieve_and_display($base_url) {
         for ($page = 2; $page <= $total_pages; $page++) {
             $page_url = $base_url . "&page=" . $page;
             echo "<p>Fetching page $page: $page_url</p>";
-            random_fluctuation_delay();
+            delay_patterns();
             // tested
             $page_html = fetch_url_content($page_url);
             if ($page_html) {
@@ -127,6 +144,11 @@ function retrieve_and_display($base_url) {
                 echo "<p>Failed to fetch page $page</p>";
             }
         } 
+
+
+        // perform price records
+        $comparison_results = compare_prices($all_merchants, );
+
         
         // Display all the combined results
         echo "<h3>All Merchants (Total: " . count($all_merchants) . ")</h3>";

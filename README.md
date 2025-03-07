@@ -31,7 +31,7 @@ This project is a PHP-based system designed for internal use by a company that c
 
 - **Database initizations**:
   - Run init.sql once
-  - 
+  - npm install node-fetch@2
 
 ---
 

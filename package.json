@@ -1,5 +1,28 @@
 {
   "dependencies": {
+    "node-fetch": "^2.7.0",
     "puppeteer": "^24.3.0"
-  }
+  },
+  "name": "monitoring_system",
+  "version": "1.0.0",
+  "description": "This project is a PHP-based system designed for internal use by a company that creates high-tech equipment (e.g., NAS devices). The system monitors and evaluates product pricing from partnered merchants listed on third-party platforms (e.g., price.com.hk). It ensures pricing compliance by comparing merchant prices with the company's standard reference prices and notifying partners of any discrepancies.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felistar404/Partner-Price-Monitoring-System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/felistar404/Partner-Price-Monitoring-System/issues"
+  },
+  "homepage": "https://github.com/felistar404/Partner-Price-Monitoring-System#readme"
 }
