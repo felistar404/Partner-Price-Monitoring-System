@@ -1,0 +1,173 @@
+---
+import {convertPathToHtml} from "../../../utils/index.js";
+const {path, mainPage, page} = Astro.props;
+const htmlPath = convertPathToHtml(path);
+---
+
+<!--begin::Sidebar-->
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+  <!--begin::Sidebar Brand-->
+  <div class="sidebar-brand">
+    <!--begin::Brand Link-->
+    <a href={htmlPath + "/index.html"} class="brand-link">
+      <!--begin::Brand Image-->
+      <!-- <img
+        src={path + "/assets/img/AdminLTELogo.png"}
+        alt="AdminLTE Logo"
+        class="brand-image opacity-75 shadow"
+      /> -->
+      <!--end::Brand Image-->
+      <!--begin::Brand Text-->
+      <span class="brand-text fw-light">Monitoring System</span>
+      <!--end::Brand Text-->
+    </a>
+    <!--end::Brand Link-->
+  </div>
+  <!--end::Sidebar Brand-->
+  <!--begin::Sidebar Wrapper-->
+  <div class="sidebar-wrapper">
+    <nav class="mt-2">
+      <!--begin::Sidebar Menu-->
+      <ul
+        class="nav sidebar-menu flex-column"
+        data-lte-toggle="treeview"
+        role="menu"
+        data-accordion="false"
+      >
+        <!-- Main Page - Price Records -->
+        <li class:list={["nav-item", mainPage === "main" && "menu-open"]}>
+          <a
+            href={htmlPath + "/index.html"}
+            class:list={["nav-link", mainPage === "main" && "active"]}
+          >
+            <i class="nav-icon bi bi-table"></i>
+            <p>Price Records</p>
+          </a>
+        </li>
+
+        <!-- Active Status Management -->
+        <li class:list={["nav-item", mainPage === "active" && "menu-open"]}>
+          <a
+            href="#"
+            class:list={["nav-link", mainPage === "active" && "active"]}
+          >
+            <i class="nav-icon bi bi-toggle-on"></i>
+            <p>
+              Active Status
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/active/products.html"}
+                class:list={["nav-link", page === "active-products" && "active"]}
+              >
+                <i class="nav-icon bi bi-box"></i>
+                <p>Products</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/active/merchants.html"}
+                class:list={["nav-link", page === "active-merchants" && "active"]}
+              >
+                <i class="nav-icon bi bi-shop"></i>
+                <p>Merchants</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/active/platforms.html"}
+                class:list={["nav-link", page === "active-platforms" && "active"]}
+              >
+                <i class="nav-icon bi bi-display"></i>
+                <p>Platforms</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Add Item -->
+        <li class:list={["nav-item", mainPage === "add" && "menu-open"]}>
+          <a
+            href="#"
+            class:list={["nav-link", mainPage === "add" && "active"]}
+          >
+            <i class="nav-icon bi bi-plus-circle"></i>
+            <p>
+              Add Item
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/add/products.html"}
+                class:list={["nav-link", page === "add-products" && "active"]}
+              >
+                <i class="nav-icon bi bi-box"></i>
+                <p>Products</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/add/merchant.html"}
+                class:list={["nav-link", page === "add-merchant" && "active"]}
+              >
+                <i class="nav-icon bi bi-shop"></i>
+                <p>Merchant</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/add/platform.html"}
+                class:list={["nav-link", page === "add-platform" && "active"]}
+              >
+                <i class="nav-icon bi bi-display"></i>
+                <p>Platform</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Documentation -->
+        <li class:list={["nav-item", mainPage === "document" && "menu-open"]}>
+          <a
+            href="#"
+            class:list={["nav-link", mainPage === "document" && "active"]}
+          >
+            <i class="nav-icon bi bi-file-text"></i>
+            <p>
+              Documentation
+              <i class="nav-arrow bi bi-chevron-right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/docs/user-manual.html"}
+                class:list={["nav-link", page === "user-manual" && "active"]}
+              >
+                <i class="nav-icon bi bi-person-fill"></i>
+                <p>User Manual</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/docs/developer-manual.html"}
+                class:list={["nav-link", page === "developer-manual" && "active"]}
+              >
+                <i class="nav-icon bi bi-code-square"></i>
+                <p>Developer Manual</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <!--end::Sidebar Menu-->
+    </nav>
+  </div>
+  <!--end::Sidebar Wrapper-->
+</aside>
+<!--end::Sidebar-->

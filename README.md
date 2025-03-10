@@ -12,7 +12,7 @@ This project is a PHP-based system designed for internal use by a company that c
 - **Merchant Categorization**: Merchants are categorized into three groups:
   - **Overcharge**: Prices higher than reference values.
   - **Undercharge**: Prices lower than reference values.
-  - **Satisfaction**: Prices within acceptable limits.
+  - **Normal price**: Prices within acceptable limits.
 - **Cooldown and Hard Refresh**:
   - Implements a **24-hour cooldown** to prevent excessive refreshes and minimize detection as a bot by third-party platforms.
   - Provides a **hard refresh** feature to override the cooldown for immediate updates, accessible via a web interface.
