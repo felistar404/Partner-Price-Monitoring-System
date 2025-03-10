@@ -73,6 +73,7 @@ function store_price_records($merchants, $product, $platform_id, $reference_key)
         if (!isset($merchant['shopID'])) continue;
         
         $exteral_merchant_id = $merchant['shopID'];
+        $latest_update = $merchant['updateDate'];
 
         $mapping_query = "SELECT merchant_id FROM platform_merchant_mappings WHERE platform_id = ? AND platform_merchant_id = ?";
         $map_stmt = $conn->prepare($mapping_query);
@@ -93,11 +94,11 @@ function store_price_records($merchants, $product, $platform_id, $reference_key)
             $price_status = isset($merchant['price_status']) ? $merchant['price_status'] : 'missing';
             
             $insert_query = "INSERT INTO price_records 
-                          (product_id, merchant_id, platform_id, price, price_status, reference_key) 
-                          VALUES (?, ?, ?, ?, ?, ?)";
+                          (product_id, merchant_id, platform_id, price, price_status, reference_key, latest_update) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?)";
             
             $insert_stmt = $conn->prepare($insert_query);
-            $insert_stmt->bind_param("iiidss", $product_id, $merchant_id, $platform_id, $price, $price_status, $reference_key);
+            $insert_stmt->bind_param("iiidsss", $product_id, $merchant_id, $platform_id, $price, $price_status, $reference_key, $latest_update);
             
             if (!$insert_stmt->execute()) {
                 echo "Error inserting price record: " . $insert_stmt->error;

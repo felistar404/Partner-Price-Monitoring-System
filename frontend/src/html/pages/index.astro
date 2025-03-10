@@ -9,6 +9,18 @@ const title = "QNAP | Monitoring System";
 const path = "../../dist";
 const mainPage = "dashboard";
 const page = "index";
+
+// fetch newest price records from API
+let records = [];
+try {
+  const apiBaseUrl = import.meta.env.PUBLIC_API_BASE;
+  const response = await fetch(`${apiBaseUrl}/get_price_records.php`);
+  const data = await response.json();
+  records = data.records || [];
+} catch (error) {
+  console.error("Error:", error);
+}
+
 ---
 
 <!doctype html>

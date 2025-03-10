@@ -110,6 +110,7 @@ CREATE TABLE price_records (
     currency VARCHAR(10) DEFAULT 'HKD',
     price_status ENUM('acceptable', 'overpriced', 'underpriced', 'missing') NOT NULL COMMENT 'Based on this indicator to provide status',
     reference_key VARCHAR(255) NOT NULL,
+    latest_update TIMESTAMP DEFAULT NULL,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE CASCADE,
     FOREIGN KEY (platform_id) REFERENCES platforms(platform_id) ON DELETE CASCADE

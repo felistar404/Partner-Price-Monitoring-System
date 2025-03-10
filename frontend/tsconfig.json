@@ -22,7 +22,11 @@
     "lib": ["es2018", "DOM"],
   },
   "include": [
-    "src/ts/**/*"
+    "src/**/*.ts",
+    "src/**/*.astro",
+    "src/ts/**/*",
+    "*.d.ts",
+    "src/env.d.ts"
   ],
   "exclude": [
     "dist",
