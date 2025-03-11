@@ -117,15 +117,15 @@ CREATE TABLE price_records (
 ) ENGINE=InnoDB;
 
 -- crawl logs
-CREATE TABLE crawl_logs (
-    log_id INT AUTO_INCREMENT PRIMARY KEY,
-    platform_id INT NOT NULL,
-    crawl_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('completed', 'failed') NOT NULL,
-    crawled_products INT DEFAULT 0,
-    error_message TEXT,
-    crawl_description TEXT
-) ENGINE=InnoDB;
+-- CREATE TABLE crawl_logs (
+--     log_id INT AUTO_INCREMENT PRIMARY KEY,
+--     platform_id INT NOT NULL,
+--     crawl_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     status ENUM('completed', 'failed') NOT NULL,
+--     crawled_products INT DEFAULT 0,
+--     error_message TEXT,
+--     crawl_description TEXT
+-- ) ENGINE=InnoDB;
 
 -- -- notification logs (To ensure not to duplicate the notification email in short period of time - Automation)
 -- CREATE TABLE notification_logs (
@@ -141,16 +141,15 @@ CREATE TABLE crawl_logs (
 --     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 -- ) ENGINE=InnoDB;
 
--- cooldown references (multi-IP support)
+-- cooldown references (refresh buttons)
 CREATE TABLE refresh_cooldowns (
     cooldown_id INT AUTO_INCREMENT PRIMARY KEY,
-    platform_id INT NOT NULL,
-    IP VARCHAR(45) NOT NULL COMMENT 'Stores IPv4 or IPv6 address of the client',
+    -- platform_id INT NOT NULL,
+    IP VARCHAR(45) DEFAULT NULL COMMENT 'Stores IPv4 or IPv6 address of the client',
     last_refresh_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    next_available_time TIMESTAMP COMMENT 'Based on this timestamp to decide whether or not to perform refresh',
-    cooldown_hours INT DEFAULT 24 COMMENT 'Default in 24 hrs',
-    FOREIGN KEY (platform_id) REFERENCES platforms(platform_id) ON DELETE CASCADE,
+    next_available_time TIMESTAMP COMMENT 'Based on this timestamp to decide whether or not to perform refresh'
+    -- FOREIGN KEY (platform_id) REFERENCES platforms(platform_id) ON DELETE CASCADE,
     -- FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE SET NULL,
     -- FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE SET NULL,
-    UNIQUE INDEX (platform_id, IP) COMMENT 'Allows tracking different IPs for the same platform'
+    -- UNIQUE INDEX (platform_id, IP) COMMENT 'Allows tracking different IPs for the same platform'
 ) ENGINE=InnoDB;

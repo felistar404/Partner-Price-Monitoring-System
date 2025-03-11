@@ -6,6 +6,7 @@ backend/notes/
 backend/test/
 backend/reference/
 backend/tmp/
+backend/logs/
 
 #-----------------#
 #     Frontend    #

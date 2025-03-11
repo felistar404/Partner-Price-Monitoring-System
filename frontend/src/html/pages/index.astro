@@ -101,9 +101,6 @@ for (let i = 1; i <= totalPages; i++) {
                     <button id="refresh-btn" class="btn btn-sm btn-outline-primary" title="Refresh data">
                       <i class="bi bi-arrow-clockwise"></i> Refresh
                     </button>
-                    <button id="hard-refresh-btn" class="btn btn-sm btn-outline-danger" title="Hard refresh (Ignore cooldown time)">
-                      <i class="bi bi-arrow-repeat"></i> Hard Refresh
-                    </button>
                   </div>
                 </div>
               </div>
@@ -124,27 +121,30 @@ for (let i = 1; i <= totalPages; i++) {
                     </thead>
                     <tbody>
                       {records.length > 0 ? (
-                        records.map((record: { record_id: unknown; product_name: unknown; product_model: unknown; merchant_name: unknown; platform_name: unknown; price: unknown; currency: unknown; latest_update: any; price_status: string; }, index: number) => (
+                        records.map((record: { record_id: unknown; product_name: unknown; 
+                          product_model: unknown; merchant_name: unknown; platform_name: unknown;
+                           price: unknown; currency: unknown; latest_update: any; price_status: string;
+                           }, index: number) => (
                           <tr class="table-row" data-page={Math.floor(index / itemsPerPage) + 1}>
-                            <td>{record.record_id}</td>
+                            <td>{index + 1}</td>
                             <td>{record.product_name}</td>
                             <td>{record.product_model}</td>
                             <td>{record.merchant_name}</td>
                             <td>{record.platform_name}</td>
                             <td>{record.price} {record.currency}</td>
-                            <td>{record.latest_update || 'N/A'}</td>
+                            <td>{record.latest_update ? record.latest_update.split(' ')[0] : 'N/A'}</td>
                             <td>
                               {record.price_status === 'missing' && (
-                                <span class="badge bg-warning">Missing</span>
+                                <span class="badge bg-info">Missing</span>
                               )}
-                              {record.price_status === 'normal' && (
-                                <span class="badge bg-success">Normal</span>
+                              {record.price_status === 'acceptable' && (
+                                <span class="badge bg-success">Acceptable</span>
                               )}
-                              {record.price_status === 'high' && (
-                                <span class="badge bg-danger">High</span>
+                              {record.price_status === 'overpriced' && (
+                                <span class="badge bg-danger">Overpriced</span>
                               )}
-                              {record.price_status === 'low' && (
-                                <span class="badge bg-info">Low</span>
+                              {record.price_status === 'underpriced' && (
+                                <span class="badge bg-warning">Underpriced</span>
                               )}
                             </td>
                           </tr>
@@ -284,5 +284,46 @@ for (let i = 1; i <= totalPages; i++) {
       });
     </script>
     <!--end::Script-->
+
+    <div class="modal fade" id="processingModal" tabindex="-1" aria-labelledby="processingModalLabel" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="processingModalLabel">Data fetching in Progress</h5>
+          </div>
+          <div class="modal-body text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div id="processingStatus">Refreshing data, please wait...</div>
+            <div class="progress mt-3">
+              <div id="processingProgress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', function() {
+        const refreshBtn = document.getElementById('refresh-btn');
+        refreshBtn.addEventListener('click', async function() {
+          refreshBtn.disabled = true;
+          refreshBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Refreshing...';
+
+          const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+          processingModal.show();
+
+          const statusElement = document.getElementById('processingStatus');
+          const progressBar = document.getElementById('processingProgress');
+
+        })
+      })
+
+
+        
+    </script>
+
+
   </body><!--end::Body-->
 </html>

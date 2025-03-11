@@ -1,6 +1,7 @@
 <?php
 
 require_once '../config/conn.php';
+require_once '../config/logger.php';
 require_once '../lib/simple_html_dom.php';
 require_once 'price_comparison.php';
 
@@ -22,12 +23,12 @@ $stmt->close();
 
 // If more than 0, meaning there are products waiting for monitoring.
 if ($product_result->num_rows === 0) {
-    exit("|TERMINATES| All products are inactive. System terminates.");
+    exit(Logger::error("No products are available for monitoring."));
 }
 
 // Main iteration
 foreach ($p as $product) {
-    echo "|TEST| Current Processing product: {$product['product_name']} --> ID: {$product['product_id']}<br>";
+    // echo "|TEST| Current Processing product: {$product['product_name']} --> ID: {$product['product_id']}<br>";
     
     // Using $product['product_id'] to check existing sets of platform_id & platform_product_id (白話就是拿商品ID尋找它們屬於那些平台以及它對那些平台的ID是甚麼)
     $mapping_query = "SELECT pum.platform_id, pum.platform_product_id,
@@ -46,7 +47,7 @@ foreach ($p as $product) {
     $stmt->close();
 
     if (empty($mapping_stmt)) {
-        echo "|MISSING| The product: {$product['product_name']} (ID: {$product['product_id']}) does not belong to any platform in db record.<br>";
+        Logger::error("The product: {$product['product_name']} (ID: {$product['product_id']}) does not belong to any platform in db record.");
     }
 
     foreach ($mapping_stmt as $platform_info) {
@@ -64,14 +65,14 @@ foreach ($p as $product) {
         $p_id = $platform_info['platform_product_id'];
         $url = $prefix_url . $suffix_url . $p_id;
 
-        echo "|TEST| Checking product on {$platform_name}: {$url}<br>";
+        // echo "|TEST| Checking product on {$platform_name}: {$url}<br>";
 
         // Uncomment to actually process the URL
         retrieve_and_display($url, $product, $platform_info);
         // perform comparison and alert system. (internal)
         // call function to record crawl_log. (extra function)
 
-        echo "--------------------------------------------------------------------------<br>";
+        // echo "--------------------------------------------------------------------------<br>";
 
         //test
         // exit("terminates");
@@ -82,7 +83,7 @@ foreach ($p as $product) {
     }
 }
 
-// final steps: stored data in db
+// final steps: stored data in db & set cooldown time
 $insert_query = "INSERT INTO main_records (reference_key, update_date) VALUES (?, NOW())";
 $stmt = $conn->prepare($insert_query);
 if (!$stmt) {
@@ -91,6 +92,16 @@ if (!$stmt) {
 $stmt->bind_param("s", $reference_key);
 $stmt->execute();
 $stmt->close();
+
+$cooldown_query = "INSERT INTO refresh_cooldowns (reference_key, last_refresh_time, next_available_time) VALUES (?, NOW(), NOW() + INTERVAL 24 HOUR)";
+$t_stmt = $conn->prepare($cooldown_query);
+if (!$stmt) {
+    exit("Prepare failed: (" . $conn->errno . ") " . $conn->error);
+}
+$t_stmt->bind_param("s", $reference_key);
+$t_stmt->execute();
+$t_stmt->close();
+
 
 function delay_patterns($context = 'default') {
     $delays = [
@@ -124,7 +135,7 @@ function retrieve_and_display($base_url, $product, $platform_info) {
     if ($html) {
         // process the first page
         $total_pages = retrieve_total_pages($html);
-        echo "<h3>Total pages: $total_pages</h3>";
+        // echo "<h3>Total pages: $total_pages</h3>";
         
         // process first page results
         $page_results = retrieve_merchant_price_id($html);
@@ -133,7 +144,7 @@ function retrieve_and_display($base_url, $product, $platform_info) {
         // process of remaining pages
         for ($page = 2; $page <= $total_pages; $page++) {
             $page_url = $base_url . "&page=" . $page;
-            echo "<p>Fetching page $page: $page_url</p>";
+            // echo "<p>Fetching page $page: $page_url</p>";
             delay_patterns();
             // tested
             $page_html = fetch_url_content($page_url);
@@ -141,7 +152,7 @@ function retrieve_and_display($base_url, $product, $platform_info) {
                 $page_results = retrieve_merchant_price_id($page_html);
                 $all_merchants = array_merge($all_merchants, $page_results);
             } else {
-                echo "<p>Failed to fetch page $page</p>";
+                exit(Logger::error("Failed to fetch page $page"));
             }
         } 
 
@@ -153,77 +164,77 @@ function retrieve_and_display($base_url, $product, $platform_info) {
         $storage_success = store_price_records($all_merchants, $product, $platform_id, $reference_key);
         
         // Display store status for debugging
-        if ($storage_success) {
-            echo "<div style='background-color: #d4edda; color: #155724; padding: 10px; margin: 10px 0; border-radius: 5px;'>
-                  <strong>Success:</strong> Price records successfully stored in database with reference key: $reference_key
-                  </div>";
-        } else {
-            echo "<div style='background-color: #f8d7da; color: #721c24; padding: 10px; margin: 10px 0; border-radius: 5px;'>
-                  <strong>Error:</strong> Failed to store some price records in database
-                  </div>";
-        }
+        // if ($storage_success) {
+        //     echo "<div style='background-color: #d4edda; color: #155724; padding: 10px; margin: 10px 0; border-radius: 5px;'>
+        //           <strong>Success:</strong> Price records successfully stored in database with reference key: $reference_key
+        //           </div>";
+        // } else {
+        //     echo "<div style='background-color: #f8d7da; color: #721c24; padding: 10px; margin: 10px 0; border-radius: 5px;'>
+        //           <strong>Error:</strong> Failed to store some price records in database
+        //           </div>";
+        // }
 
         // Display all the combined results (test)
-        echo "<h3>All Merchants (Total: " . count($all_merchants) . ")</h3>";
-        echo "<table border='1' cellpadding='5'>";
-        echo "<tr><th>Merchant ID</th><th>Merchant Name</th><th>Set Price</th><th>Update Date</th></tr>";
+        // echo "<h3>All Merchants (Total: " . count($all_merchants) . ")</h3>";
+        // echo "<table border='1' cellpadding='5'>";
+        // echo "<tr><th>Merchant ID</th><th>Merchant Name</th><th>Set Price</th><th>Update Date</th></tr>";
         
-        foreach ($all_merchants as $item) {
-            echo "<tr>";
-            echo "<td>" . (isset($item['shopID']) ? $item['shopID'] : 'N/A') . "</td>";
-            echo "<td>" . (isset($item['shopName']) ? $item['shopName'] : 'N/A') . "</td>";
-            echo "<td>HK$ " . (isset($item['price']) ? $item['price'] : 'N/A') . "</td>";
-            echo "<td>" . (isset($item['updateDate']) ? $item['updateDate'] : 'N/A') . "</td>";
-            echo "</tr>";
-        }
-        echo "</table>";
+        // foreach ($all_merchants as $item) {
+        //     echo "<tr>";
+        //     echo "<td>" . (isset($item['shopID']) ? $item['shopID'] : 'N/A') . "</td>";
+        //     echo "<td>" . (isset($item['shopName']) ? $item['shopName'] : 'N/A') . "</td>";
+        //     echo "<td>HK$ " . (isset($item['price']) ? $item['price'] : 'N/A') . "</td>";
+        //     echo "<td>" . (isset($item['updateDate']) ? $item['updateDate'] : 'N/A') . "</td>";
+        //     echo "</tr>";
+        // }
+        // echo "</table>";
         
-        // DEBUG: Display price comparison results
-        echo "<h3>DEBUG: Price Comparison Results</h3>";
-        echo "<h4>Product Info: {$product['product_name']} (ID: {$product['product_id']})</h4>";
-        echo "<p>Reference Price: HK$ {$product['reference_price']}<br>";
-        echo "Acceptable Range: HK$ {$product['min_acceptable_price']} - HK$ {$product['max_acceptable_price']}</p>";
+        // // DEBUG: Display price comparison results
+        // echo "<h3>DEBUG: Price Comparison Results</h3>";
+        // echo "<h4>Product Info: {$product['product_name']} (ID: {$product['product_id']})</h4>";
+        // echo "<p>Reference Price: HK$ {$product['reference_price']}<br>";
+        // echo "Acceptable Range: HK$ {$product['min_acceptable_price']} - HK$ {$product['max_acceptable_price']}</p>";
         
-        echo "<h4>Price Statistics:</h4>";
-        echo "<ul>";
-        echo "<li>Total merchants: {$comparison_results['stats']['total']}</li>";
-        echo "<li>Overpriced: {$comparison_results['stats']['overpriced_count']}</li>";
-        echo "<li>Underpriced: {$comparison_results['stats']['underpriced_count']}</li>";
-        echo "<li>Acceptable: {$comparison_results['stats']['acceptable_count']}</li>";
-        echo "<li>Missing price: {$comparison_results['stats']['missing_count']}</li>";
-        echo "</ul>";
+        // echo "<h4>Price Statistics:</h4>";
+        // echo "<ul>";
+        // echo "<li>Total merchants: {$comparison_results['stats']['total']}</li>";
+        // echo "<li>Overpriced: {$comparison_results['stats']['overpriced_count']}</li>";
+        // echo "<li>Underpriced: {$comparison_results['stats']['underpriced_count']}</li>";
+        // echo "<li>Acceptable: {$comparison_results['stats']['acceptable_count']}</li>";
+        // echo "<li>Missing price: {$comparison_results['stats']['missing_count']}</li>";
+        // echo "</ul>";
         
-        // Display overpriced merchants
-        if (!empty($comparison_results['overpriced'])) {
-            echo "<h4>Overpriced Merchants ({$comparison_results['stats']['overpriced_count']}):</h4>";
-            echo "<table border='1' cellpadding='5' style='background-color: #ffdddd;'>";
-            echo "<tr><th>Merchant ID</th><th>Merchant Name</th><th>Price</th><th>Status</th></tr>";
-            foreach ($comparison_results['overpriced'] as $merchant) {
-                echo "<tr>";
-                echo "<td>" . (isset($merchant['shopID']) ? $merchant['shopID'] : 'N/A') . "</td>";
-                echo "<td>" . (isset($merchant['shopName']) ? $merchant['shopName'] : 'N/A') . "</td>";
-                echo "<td>HK$ " . (isset($merchant['price']) ? $merchant['price'] : 'N/A') . "</td>";
-                echo "<td>" . (isset($merchant['price_status']) ? $merchant['price_status'] : 'N/A') . "</td>";
-                echo "</tr>";
-            }
-            echo "</table>";
-        }
+        // // Display overpriced merchants
+        // if (!empty($comparison_results['overpriced'])) {
+        //     echo "<h4>Overpriced Merchants ({$comparison_results['stats']['overpriced_count']}):</h4>";
+        //     echo "<table border='1' cellpadding='5' style='background-color: #ffdddd;'>";
+        //     echo "<tr><th>Merchant ID</th><th>Merchant Name</th><th>Price</th><th>Status</th></tr>";
+        //     foreach ($comparison_results['overpriced'] as $merchant) {
+        //         echo "<tr>";
+        //         echo "<td>" . (isset($merchant['shopID']) ? $merchant['shopID'] : 'N/A') . "</td>";
+        //         echo "<td>" . (isset($merchant['shopName']) ? $merchant['shopName'] : 'N/A') . "</td>";
+        //         echo "<td>HK$ " . (isset($merchant['price']) ? $merchant['price'] : 'N/A') . "</td>";
+        //         echo "<td>" . (isset($merchant['price_status']) ? $merchant['price_status'] : 'N/A') . "</td>";
+        //         echo "</tr>";
+        //     }
+        //     echo "</table>";
+        // }
         
-        // Display underpriced merchants
-        if (!empty($comparison_results['underpriced'])) {
-            echo "<h4>Underpriced Merchants ({$comparison_results['stats']['underpriced_count']}):</h4>";
-            echo "<table border='1' cellpadding='5' style='background-color: #ddffdd;'>";
-            echo "<tr><th>Merchant ID</th><th>Merchant Name</th><th>Price</th><th>Status</th></tr>";
-            foreach ($comparison_results['underpriced'] as $merchant) {
-                echo "<tr>";
-                echo "<td>" . (isset($merchant['shopID']) ? $merchant['shopID'] : 'N/A') . "</td>";
-                echo "<td>" . (isset($merchant['shopName']) ? $merchant['shopName'] : 'N/A') . "</td>";
-                echo "<td>HK$ " . (isset($merchant['price']) ? $merchant['price'] : 'N/A') . "</td>";
-                echo "<td>" . (isset($merchant['price_status']) ? $merchant['price_status'] : 'N/A') . "</td>";
-                echo "</tr>";
-            }
-            echo "</table>";
-        }
+        // // Display underpriced merchants
+        // if (!empty($comparison_results['underpriced'])) {
+        //     echo "<h4>Underpriced Merchants ({$comparison_results['stats']['underpriced_count']}):</h4>";
+        //     echo "<table border='1' cellpadding='5' style='background-color: #ddffdd;'>";
+        //     echo "<tr><th>Merchant ID</th><th>Merchant Name</th><th>Price</th><th>Status</th></tr>";
+        //     foreach ($comparison_results['underpriced'] as $merchant) {
+        //         echo "<tr>";
+        //         echo "<td>" . (isset($merchant['shopID']) ? $merchant['shopID'] : 'N/A') . "</td>";
+        //         echo "<td>" . (isset($merchant['shopName']) ? $merchant['shopName'] : 'N/A') . "</td>";
+        //         echo "<td>HK$ " . (isset($merchant['price']) ? $merchant['price'] : 'N/A') . "</td>";
+        //         echo "<td>" . (isset($merchant['price_status']) ? $merchant['price_status'] : 'N/A') . "</td>";
+        //         echo "</tr>";
+        //     }
+        //     echo "</table>";
+        // }
         
         // record the crawl_log into db
         // $log_query = "INSERT INTO crawl_logs (platform_id, crawl_time, status, crawled_products, crawl_description) VALUES (?, NOW(), completed, )";
@@ -231,7 +242,7 @@ function retrieve_and_display($base_url, $product, $platform_info) {
         // $stmt->bind_param("i", $_SESSION[""], $_SESSION[""]),
 
     } else {
-        echo "Failed to fetch initial page!";
+        exit(Logger::error("Failed to fetch initial page!"));
     }
 }
 
@@ -246,7 +257,8 @@ function fetch_url_content($url) {
     $response = curl_exec($ch);
     
     if (curl_errno($ch)) {
-        echo "cURL Error: " . curl_error($ch);
+        Logger::warning("cURL Error: " . curl_error($ch));
+        // echo "cURL Error: " . curl_error($ch);
         curl_close($ch);
         return false;
     }
@@ -254,7 +266,8 @@ function fetch_url_content($url) {
     curl_close($ch);
     $html = str_get_html($response);
     if (!$html) {
-        echo "Failed to parse HTML!";
+        Logger::warning("Failed to parse HTML!");
+        // echo "Failed to parse HTML!";
         return false;
     }
     
