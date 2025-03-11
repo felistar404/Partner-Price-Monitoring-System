@@ -7,7 +7,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 // query to get platforms 
-$platforms_Query = "SELECT platform_name, platform_status, created_at FROM platforms";
+$platforms_Query = "SELECT * FROM platforms";
 $platformsResult = $conn->query($platforms_Query);
 
 if (!$platformsResult) {

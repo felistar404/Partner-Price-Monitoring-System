@@ -258,7 +258,6 @@ function fetch_url_content($url) {
     
     if (curl_errno($ch)) {
         Logger::warning("cURL Error: " . curl_error($ch));
-        // echo "cURL Error: " . curl_error($ch);
         curl_close($ch);
         return false;
     }
@@ -267,7 +266,6 @@ function fetch_url_content($url) {
     $html = str_get_html($response);
     if (!$html) {
         Logger::warning("Failed to parse HTML!");
-        // echo "Failed to parse HTML!";
         return false;
     }
     

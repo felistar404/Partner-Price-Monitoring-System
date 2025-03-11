@@ -45,23 +45,23 @@ const htmlPath = convertPathToHtml(path);
           </a>
         </li>
 
-        <!-- Active Status Management -->
-        <li class:list={["nav-item", mainPage === "active" && "menu-open"]}>
+        <!-- Modify Data (previously Active Status) -->
+        <li class:list={["nav-item", mainPage === "modify" && "menu-open"]}>
           <a
             href="#"
-            class:list={["nav-link", mainPage === "active" && "active"]}
+            class:list={["nav-link", mainPage === "modify" && "active"]}
           >
-            <i class="nav-icon bi bi-toggle-on"></i>
+            <i class="nav-icon bi bi-pencil-square"></i>
             <p>
-              Active Status
+              Modify item
               <i class="nav-arrow bi bi-chevron-right"></i>
             </p>
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
               <a
-                href={htmlPath + "/active/products.html"}
-                class:list={["nav-link", page === "active-products" && "active"]}
+                href={htmlPath + "/modify/products.html"}
+                class:list={["nav-link", page === "modify-products" && "active"]}
               >
                 <i class="nav-icon bi bi-box"></i>
                 <p>Products</p>
@@ -69,8 +69,8 @@ const htmlPath = convertPathToHtml(path);
             </li>
             <li class="nav-item">
               <a
-                href={htmlPath + "/active/merchants.html"}
-                class:list={["nav-link", page === "active-merchants" && "active"]}
+                href={htmlPath + "/modify/merchants.html"}
+                class:list={["nav-link", page === "modify-merchants" && "active"]}
               >
                 <i class="nav-icon bi bi-shop"></i>
                 <p>Merchants</p>
@@ -78,8 +78,8 @@ const htmlPath = convertPathToHtml(path);
             </li>
             <li class="nav-item">
               <a
-                href={htmlPath + "/active/platforms.html"}
-                class:list={["nav-link", page === "active-platforms" && "active"]}
+                href={htmlPath + "/modify/platforms.html"}
+                class:list={["nav-link", page === "modify-platforms" && "active"]}
               >
                 <i class="nav-icon bi bi-display"></i>
                 <p>Platforms</p>

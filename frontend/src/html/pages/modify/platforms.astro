@@ -1,0 +1,445 @@
+---
+import Head from "@components/_head.astro";
+import Footer from "@components/dashboard/_footer.astro";
+import Topbar from "@components/dashboard/_topbar.astro";
+import Sidenav from "@components/dashboard/_sidenav.astro";
+import Scripts from "@components/_scripts.astro";
+
+const title = "QNAP | Monitoring System";
+const path = "../../../dist";
+const mainPage = "dashboard";
+const page = "modify-platforms";
+
+// fetch all platforms from API
+let platforms = [];
+try {
+  const apiBaseUrl = import.meta.env.PUBLIC_API_BASE;
+  const response = await fetch(`${apiBaseUrl}/get_platforms.php`);
+  const data = await response.json();
+  platforms = data.records || [];
+} catch (error) {
+  console.error("Error:", error);
+}
+
+// calculate total pages and set max elements per page for table
+const itemsPerPage = 10;
+const totalPages = Math.ceil(platforms.length / itemsPerPage);
+
+const paginationArray = [];
+for (let i = 1; i <= totalPages; i++) {
+  paginationArray.push(i);
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <!--begin::Head-->
+  <head>
+    <Head title={title} path={path} />
+  </head>
+  <!--end::Head-->
+  <!--begin::Body-->
+  <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
+      <Topbar path={path} />
+      <Sidenav path={path} mainPage={mainPage} page={page} />
+      <!--begin::App Main-->
+      <main class="app-main">
+        <!--begin::App Content Header-->
+        <div class="app-content-header">
+          <!--begin::Container-->
+          <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+              <div class="col-sm-6">
+                <h3 class="mb-0">Modify platforms</h3>
+              </div>
+              <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                  <li class="breadcrumb-item"><a href="#">Home</a></li>
+                  <li class="breadcrumb-item">Modify Items</li>
+                  <li class="breadcrumb-item active" aria-current="page">
+                    platforms
+                  </li>
+                </ol>
+              </div>
+            </div>
+            <!--end::Row-->
+          </div>
+          <!--end::Container-->
+        </div>
+        <!--end::App Content Header-->
+        <!--begin::App Content-->
+        <div class="app-content">
+          <!--begin::Container-->
+          <div class="container-fluid">
+            <!--begin::Card-->
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">platforms List</h3>
+                <div class="ms-auto">
+                  <div class="input-group input-group-sm" style="width: 250px;">
+                    <input type="text" id="product-search" class="form-control" placeholder="Search platforms...">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered table-striped" id="platforms-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Platform Name</th>
+                        <th>Platform url</th>
+                        <th>Platform url (product)</th>
+                        <th>Platform url (merchant)</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {platforms.length > 0 ? (
+                        platforms.map((platform: any, index: number) => (
+                          <tr class="table-row" data-page={Math.floor(index / itemsPerPage) + 1} data-product={JSON.stringify(platform)}>
+                            <td>{platform.platform_id}</td>
+                            <td>{platform.platform_name}</td>
+                            <td>{platform.platform_url}</td>
+                            <td>{platform.platform_url_price}</td>
+                            <td>{platform.platform_url_merchant}</td>
+                            <td>
+                              <span class={`badge ${platform.platform_status === 'active' ? 'bg-success' : 'bg-danger'}`}>
+                                {platform.platform_status}
+                              </span>
+                            </td>
+                            <td>
+                              <button class="btn btn-primary btn-sm edit-btn" data-platform-id={platform.platform_id}>
+                                <i class="bi bi-pencil-square"></i> Edit
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colspan="8" class="text-center">No platforms found</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card-footer">
+                <nav aria-label="Page navigation">
+                  <ul class="pagination justify-content-center" id="pagination">
+                    <li class="page-item page-prev disabled">
+                      <a class="page-link" href="#" tabindex="-1">Previous</a>
+                    </li>
+                    {paginationArray.map(pageNum => (
+                      <li class={`page-item page-number ${pageNum === 1 ? 'active' : ''}`} data-page={pageNum}>
+                        <a class="page-link" href="#">{pageNum}</a>
+                      </li>
+                    ))}
+                    <li class={`page-item page-next ${totalPages <= 1 ? 'disabled' : ''}`}>
+                      <a class="page-link" href="#">Next</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+            <!--end::Card-->
+          </div>
+          <!--end::Container-->
+        </div>
+        <!--end::App Content-->
+      </main>
+      <!--end::App Main-->
+      <Footer />
+    </div>
+    <!--end::App Wrapper-->
+    
+    <!-- Edit platform Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editProductModalLabel">Edit Platform</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editPlatformForm">
+              <input type="hidden" id="platform_id" name="platform_id">
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="platform_name" class="form-label">Platform Name</label>
+                  <input type="text" class="form-control" id="platform_name" name="platform_name" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="platform_status" class="form-label">Status</label>
+                  <select class="form-select" id="platform_status" name="platform_status" required>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="platform_url" class="form-label">Platform URL</label>
+                <input type="url" class="form-control" id="platform_url" name="platform_url" required>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="platform_url_price" class="form-label">Platform URL (Product)</label>
+                  <input type="url" class="form-control" id="platform_url_price" name="platform_url_price" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="platform_url_merchant" class="form-label">Platform URL (Merchant)</label>
+                  <input type="url" class="form-control" id="platform_url_merchant" name="platform_url_merchant" required>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <p class="text-muted mb-0">Created: <span id="created_at"></span></p>
+                </div>
+                <div class="col-md-6">
+                  <p class="text-muted mb-0">Last Updated: <span id="updated_at"></span></p>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="savePlatformBtn">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Success Alert Modal -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="alertTitle">Success</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="alertMessage">Platform updated successfully!</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!--begin::Script-->
+    <Scripts path={path} />
+
+    <script is:inline define:vars={{ totalPages, itemsPerPage }}>
+      document.addEventListener('DOMContentLoaded', function() {
+        let currentPage = 1;
+        const apiBaseUrl = window.PUBLIC_API_BASE || '';
+        
+        // Pagination functionality
+        function showPage(page) {
+          document.querySelectorAll('#platforms-table .table-row').forEach(row => {
+            row.style.display = 'none';
+          });
+
+          document.querySelectorAll(`#platforms-table .table-row[data-page="${page}"]`).forEach(row => {
+            row.style.display = '';
+          });
+
+          document.querySelectorAll('#pagination .page-number').forEach(item => {
+            item.classList.remove('active');
+          });
+          document.querySelector(`#pagination .page-number[data-page="${page}"]`)?.classList.add('active');
+          document.querySelector('.page-prev').classList.toggle('disabled', page === 1);
+          document.querySelector('.page-next').classList.toggle('disabled', page === totalPages);
+          
+          currentPage = page;
+        }
+
+        // Show first page at first glance
+        showPage(1);
+
+        document.querySelectorAll('#pagination .page-number').forEach(item => {
+          item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = parseInt(this.getAttribute('data-page'));
+            showPage(page);
+          });
+        });
+
+        document.querySelector('.page-prev')?.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (currentPage > 1) {
+            showPage(currentPage - 1);
+          }
+        });
+
+        document.querySelector('.page-next')?.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (currentPage < totalPages) {
+            showPage(currentPage + 1);
+          }
+        });
+        
+        // Platform search functionality
+        const platformSearch = document.getElementById('product-search');
+        platformSearch?.addEventListener('input', function() {
+          const searchText = this.value.toLowerCase();
+          let visibleItems = 0;
+          
+          document.querySelectorAll('#platforms-table .table-row').forEach(row => {
+            const platformName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const platformUrl = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            
+            if (platformName.includes(searchText) || platformUrl.includes(searchText)) {
+              row.style.display = '';
+              visibleItems++;
+            } else {
+              row.style.display = 'none';
+            }
+          });
+          
+          // Show "no results" message if needed
+          if (visibleItems === 0) {
+            const noResultsRow = document.createElement('tr');
+            noResultsRow.id = 'no-results-row';
+            noResultsRow.innerHTML = '<td colspan="7" class="text-center">No matching platforms found</td>';
+            
+            const existingNoResults = document.getElementById('no-results-row');
+            if (!existingNoResults) {
+              document.querySelector('#platforms-table tbody').appendChild(noResultsRow);
+            }
+          } else {
+            const existingNoResults = document.getElementById('no-results-row');
+            if (existingNoResults) {
+              existingNoResults.remove();
+            }
+          }
+        });
+
+        // Edit button click handler
+        document.querySelectorAll('.edit-btn').forEach(button => {
+          button.addEventListener('click', function() {
+            const platformRow = this.closest('tr');
+            const platformData = JSON.parse(platformRow.dataset.product);
+            
+            // Fill the edit form with platform data
+            document.getElementById('platform_id').value = platformData.platform_id;
+            document.getElementById('platform_name').value = platformData.platform_name;
+            document.getElementById('platform_url').value = platformData.platform_url;
+            document.getElementById('platform_url_price').value = platformData.platform_url_price;
+            document.getElementById('platform_url_merchant').value = platformData.platform_url_merchant;
+            document.getElementById('platform_status').value = platformData.platform_status;
+            document.getElementById('created_at').textContent = platformData.created_at;
+            document.getElementById('updated_at').textContent = platformData.updated_at;
+            
+            // Show the modal
+            const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+            editModal.show();
+          });
+        });
+        
+        // Save button click handler
+        document.getElementById('savePlatformBtn')?.addEventListener('click', async function() {
+          const form = document.getElementById('editPlatformForm');
+          
+          // Basic form validation
+          if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+          }
+          
+          // Get form data
+          const formData = {
+            platform_id: document.getElementById('platform_id').value,
+            platform_name: document.getElementById('platform_name').value,
+            platform_url: document.getElementById('platform_url').value,
+            platform_url_price: document.getElementById('platform_url_price').value,
+            platform_url_merchant: document.getElementById('platform_url_merchant').value,
+            platform_status: document.getElementById('platform_status').value
+          };
+          
+          try {
+            // Show loading state
+            const saveBtn = document.getElementById('savePlatformBtn');
+            const originalBtnText = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+            
+            // Send request to update platform
+            const response = await fetch(`${apiBaseUrl}/update_platform.php`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            // Reset button state
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalBtnText;
+            
+            // Close the edit modal
+            bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+            
+            // Show success message
+            const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
+            if (result.success) {
+              document.getElementById('alertTitle').textContent = 'Success';
+              document.getElementById('alertMessage').textContent = 'Platform updated successfully!';
+              
+              // Update the row in the table with new data
+              const updatedRow = document.querySelector(`tr .edit-btn[data-platform-id="${formData.platform_id}"]`).closest('tr');
+              if (updatedRow) {
+                // Update the table data
+                const cells = updatedRow.querySelectorAll('td');
+                cells[1].textContent = formData.platform_name;
+                cells[2].textContent = formData.platform_url;
+                cells[3].textContent = formData.platform_url_price;
+                cells[4].textContent = formData.platform_url_merchant;
+                cells[5].innerHTML = `<span class="badge ${formData.platform_status === 'active' ? 'bg-success' : 'bg-danger'}">${formData.platform_status}</span>`;
+                
+                // Update the data attribute
+                const platformData = JSON.parse(updatedRow.dataset.product);
+                platformData.platform_name = formData.platform_name;
+                platformData.platform_url = formData.platform_url;
+                platformData.platform_url_price = formData.platform_url_price;
+                platformData.platform_url_merchant = formData.platform_url_merchant;
+                platformData.platform_status = formData.platform_status;
+                platformData.updated_at = new Date().toISOString().replace('T', ' ').substr(0, 19); // Set current time as updated time
+                updatedRow.dataset.product = JSON.stringify(platformData);
+              }
+            } else {
+              document.getElementById('alertTitle').textContent = 'Error';
+              document.getElementById('alertMessage').textContent = result.message || 'Failed to update platform. Please try again.';
+            }
+            alertModal.show();
+          } catch (error) {
+            console.error('Error updating platform:', error);
+            
+            // Show error message
+            const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
+            document.getElementById('alertTitle').textContent = 'Error';
+            document.getElementById('alertMessage').textContent = 'An error occurred while updating the platform. Please try again.';
+            alertModal.show();
+            
+            // Reset button state
+            document.getElementById('savePlatformBtn').disabled = false;
+            document.getElementById('savePlatformBtn').innerHTML = originalBtnText;
+          }
+        });
+      });
+    </script>
+    <!--end::Script-->
+  </body><!--end::Body-->
+</html>

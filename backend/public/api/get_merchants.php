@@ -7,7 +7,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 // query to get merchant 
-$merchant_Query = "SELECT merchant_name, email, phone, address, merchant_status FROM merchants";
+$merchant_Query = "SELECT * FROM merchants";
 $merchantResult = $conn->query($merchant_Query);
 
 if (!$merchantResult) {
