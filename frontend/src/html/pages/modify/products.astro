@@ -302,7 +302,7 @@ for (let i = 1; i <= totalPages; i++) {
           }
         });
         
-        // Product search functionality
+        // product search functionality
         const productSearch = document.getElementById('product-search');
         productSearch?.addEventListener('input', function() {
           const searchText = this.value.toLowerCase();
@@ -320,7 +320,7 @@ for (let i = 1; i <= totalPages; i++) {
             }
           });
           
-          // Show "no results" message if needed
+          // show "no results" message if no data in db
           if (visibleItems === 0) {
             const noResultsRow = document.createElement('tr');
             noResultsRow.id = 'no-results-row';
@@ -338,13 +338,13 @@ for (let i = 1; i <= totalPages; i++) {
           }
         });
 
-        // Edit button click handler
+        // edit button click handler
         document.querySelectorAll('.edit-btn').forEach(button => {
           button.addEventListener('click', function() {
             const productRow = this.closest('tr');
             const productData = JSON.parse(productRow.dataset.product);
             
-            // Fill the edit form with product data
+            // fill the form initially
             document.getElementById('product_id').value = productData.product_id;
             document.getElementById('product_name').value = productData.product_name;
             document.getElementById('product_model').value = productData.product_model;
@@ -356,13 +356,13 @@ for (let i = 1; i <= totalPages; i++) {
             document.getElementById('created_at').textContent = productData.created_at;
             document.getElementById('updated_at').textContent = productData.updated_at;
             
-            // Show the modal
+            // show the modal (form in popup)
             const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
             editModal.show();
           });
         });
         
-        // Save button click handler
+        // save button click handler
         document.getElementById('saveProductBtn')?.addEventListener('click', async function() {
           const form = document.getElementById('editProductForm');
           
@@ -385,13 +385,11 @@ for (let i = 1; i <= totalPages; i++) {
           };
           
           try {
-            // Show loading state
+            // show loading state & send request to backend
             const saveBtn = document.getElementById('saveProductBtn');
             const originalBtnText = saveBtn.innerHTML;
             saveBtn.disabled = true;
             saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-            
-            // Send request to update product
             const response = await fetch(`${apiBaseUrl}/update_product.php`, {
               method: 'POST',
               headers: {
@@ -402,23 +400,20 @@ for (let i = 1; i <= totalPages; i++) {
             
             const result = await response.json();
             
-            // Reset button state
+            // reset button state to normal & close the modal
             saveBtn.disabled = false;
             saveBtn.innerHTML = originalBtnText;
-            
-            // Close the edit modal
             bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
             
-            // Show success message
+            // show success message to user
             const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
             if (result.success) {
               document.getElementById('alertTitle').textContent = 'Success';
               document.getElementById('alertMessage').textContent = 'Product updated successfully!';
               
-              // Update the row in the table with new data
+              // update the table with new data
               const updatedRow = document.querySelector(`tr[data-product-id="${formData.product_id}"]`);
               if (updatedRow) {
-                // Update the table data
                 const cells = updatedRow.querySelectorAll('td');
                 cells[1].textContent = formData.product_name;
                 cells[2].textContent = formData.product_model;
@@ -426,8 +421,6 @@ for (let i = 1; i <= totalPages; i++) {
                 cells[4].textContent = formData.min_acceptable_price;
                 cells[5].textContent = formData.max_acceptable_price;
                 cells[6].innerHTML = `<span class="badge ${formData.product_status === 'active' ? 'bg-success' : 'bg-danger'}">${formData.product_status}</span>`;
-                
-                // Update the data attribute
                 const productData = JSON.parse(updatedRow.dataset.product);
                 productData.product_name = formData.product_name;
                 productData.product_model = formData.product_model;
@@ -436,7 +429,7 @@ for (let i = 1; i <= totalPages; i++) {
                 productData.max_acceptable_price = formData.max_acceptable_price;
                 productData.product_status = formData.product_status;
                 productData.product_description = formData.product_description;
-                productData.updated_at = new Date().toISOString().replace('T', ' ').substr(0, 19); // Set current time as updated time
+                productData.updated_at = new Date().toISOString().replace('T', ' ').substr(0, 19); // set current time as updated time
                 updatedRow.dataset.product = JSON.stringify(productData);
               }
             } else {
@@ -447,13 +440,13 @@ for (let i = 1; i <= totalPages; i++) {
           } catch (error) {
             console.error('Error updating product:', error);
             
-            // Show error message
+            // show error message to user
             const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
             document.getElementById('alertTitle').textContent = 'Error';
             document.getElementById('alertMessage').textContent = 'An error occurred while updating the product. Please try again.';
             alertModal.show();
             
-            // Reset button state
+            // reset button state to normal
             document.getElementById('saveProductBtn').disabled = false;
             document.getElementById('saveProductBtn').innerHTML = originalBtnText;
           }

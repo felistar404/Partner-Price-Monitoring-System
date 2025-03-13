@@ -11,7 +11,8 @@ $merchant_Query = "SELECT * FROM merchants";
 $merchantResult = $conn->query($merchant_Query);
 
 if (!$merchantResult) {
-    echo json_encode(['records' => []]);
+    http_response_code(500); // server side error
+    echo json_encode(['error' => 'Database query failed', 'records' => []]);
     exit;
 } 
 

@@ -5,14 +5,14 @@ USE price_monitoring_system;
 -- data init for price platform (special cases)
 INSERT INTO platforms (platform_name, platform_url, platform_url_merchant, platform_url_price, platform_status) VALUES 
 ('Price.com.hk', 'https://www.price.com.hk/', 'starshop.php?p=', 'product.php?p=', 'active');
--- ('WCSLMall', 'https://www.wcslmall.com/', 'inactive'),
--- ('CentralField', 'https://www.centralfield.com/', 'inactive'),
--- ('BUYMORE', 'https://www.buymore.hk/', 'inactive'),
--- ('Faroll', 'https://www.faroll.com/', 'inactive'),
--- ('Terminalhk', 'https://www.terminalhk.com/', 'inactive'),
--- ('ShopPEGASUS', 'https://www.shop.pegasus.com/', 'inactive'),
--- ('JUMBO-COMPUTER', 'https://www.jumbo-computer.com/', 'inactive'),
--- ('SE Computer', 'https://www.secomputer.com.hk/', 'inactive');
+('WCSLMall', 'https://www.wcslmall.com/', NULL, NULL, 'inactive'),
+('CentralField', 'https://www.centralfield.com/', NULL, NULL, 'inactive'),
+('BUYMORE', 'https://www.buymore.hk/', NULL, NULL, 'inactive'),
+('Faroll', 'https://www.faroll.com/', NULL, NULL, 'inactive'),
+('Terminalhk', 'https://www.terminalhk.com/', NULL, NULL, 'inactive'),
+('ShopPEGASUS', 'https://www.shop.pegasus.com/', NULL, NULL, 'inactive'),
+('JUMBO-COMPUTER', 'https://www.jumbo-computer.com/', NULL, NULL, 'inactive'),
+('SE Computer', 'https://www.secomputer.com.hk/', NULL, NULL, 'inactive');
 
 -- sample data (To be delete) --
 /* Both products & merchant init should align with actual data */
