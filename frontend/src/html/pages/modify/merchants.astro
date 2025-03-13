@@ -29,6 +29,8 @@ const paginationArray = [];
 for (let i = 1; i <= totalPages; i++) {
   paginationArray.push(i);
 }
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE;
 ---
 
 <!doctype html>
@@ -239,10 +241,10 @@ for (let i = 1; i <= totalPages; i++) {
     <!--begin::Script-->
     <Scripts path={path} />
 
-    <script is:inline define:vars={{ totalPages, itemsPerPage }}>
+    <script is:inline define:vars={{ totalPages, itemsPerPage, apiBaseUrl }}>
       document.addEventListener('DOMContentLoaded', function() {
         let currentPage = 1;
-        const apiBaseUrl = window.PUBLIC_API_BASE || '';
+        // const apiBaseUrl = window.PUBLIC_API_BASE || '';
         
         // Pagination functionality
         function showPage(page) {
@@ -399,7 +401,7 @@ for (let i = 1; i <= totalPages; i++) {
               document.getElementById('alertMessage').textContent = 'Merchant updated successfully!';
               
               // Update the row in the table with new data
-              const updatedRow = document.querySelector(`tr[data-merchant-id="${formData.merchant_id}"]`);
+              const updatedRow = document.querySelector(`tr .edit-btn[data-merchant-id="${formData.merchant_id}"]`).closest('tr');
               if (updatedRow) {
                 // Update the table data
                 const cells = updatedRow.querySelectorAll('td');

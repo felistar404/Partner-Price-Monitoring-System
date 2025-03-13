@@ -29,6 +29,9 @@ const paginationArray = [];
 for (let i = 1; i <= totalPages; i++) {
   paginationArray.push(i);
 }
+
+// Extract API base URL to pass to client script
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE;
 ---
 
 <!doctype html>
@@ -252,10 +255,11 @@ for (let i = 1; i <= totalPages; i++) {
     <!--begin::Script-->
     <Scripts path={path} />
 
-    <script is:inline define:vars={{ totalPages, itemsPerPage }}>
+    <script is:inline define:vars={{ totalPages, itemsPerPage, apiBaseUrl }}>
       document.addEventListener('DOMContentLoaded', function() {
         let currentPage = 1;
-        const apiBaseUrl = window.PUBLIC_API_BASE || '';
+        // Use the server-side variable passed to the client
+        // const apiBaseUrl = import.meta.env.PUBLIC_API_BASE; // REMOVE THIS LINE
         
         // Pagination functionality
         function showPage(page) {
@@ -372,7 +376,7 @@ for (let i = 1; i <= totalPages; i++) {
             return;
           }
           
-          // Get form data
+          // get form data
           const formData = {
             product_id: document.getElementById('product_id').value,
             product_name: document.getElementById('product_name').value,
@@ -412,7 +416,7 @@ for (let i = 1; i <= totalPages; i++) {
               document.getElementById('alertMessage').textContent = 'Product updated successfully!';
               
               // update the table with new data
-              const updatedRow = document.querySelector(`tr[data-product-id="${formData.product_id}"]`);
+              const updatedRow = document.querySelector(`tr .edit-btn[data-product-id="${formData.product_id}"]`).closest('tr');
               if (updatedRow) {
                 const cells = updatedRow.querySelectorAll('td');
                 cells[1].textContent = formData.product_name;

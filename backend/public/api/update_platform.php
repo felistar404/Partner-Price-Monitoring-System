@@ -24,47 +24,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // validate the data
     if(
-        !empty($data->merchant_id) &&
-        !empty($data->merchant_name) &&
-        !empty($data->email) &&
-        !empty($data->phone) &&
-        !empty($data->address) &&
-        !empty($data->merchant_status)
+        !empty($data->platform_name) &&
+        !empty($data->platform_url) &&
+        !empty($data->platform_url_price) &&
+        !empty($data->platform_url_merchant) &&
+        !empty($data->platform_status)
     ) {
-        $merchant_id = htmlspecialchars(strip_tags($data->merchant_id));
-        $merchant_name = htmlspecialchars(strip_tags($data->merchant_name));
-        $email = htmlspecialchars(strip_tags($data->email));
-        $phone = htmlspecialchars(strip_tags($data->phone));
-        $address = htmlspecialchars(strip_tags($data->address));
-        $merchant_status = htmlspecialchars(strip_tags($data->merchant_status));
+        $platform_name = htmlspecialchars(strip_tags($data->platform_name));
+        $platform_url = htmlspecialchars(strip_tags($data->platform_url));
+        $platform_url_price = htmlspecialchars(strip_tags($data->platform_url_price));
+        $platform_url_merchant = htmlspecialchars(strip_tags($data->platform_url_merchant));
+        $platform_status = htmlspecialchars(strip_tags($data->platform_status));
     
-        $query = "UPDATE merchants 
-              SET merchant_name = ?, 
-                  email = ?, 
-                  phone = ?, 
-                  address = ?, 
-                  merchant_status = ?, 
+        $query = "UPDATE platforms 
+              SET platform_name = ?, 
+                  platform_url = ?, 
+                  platform_url_price = ?, 
+                  platform_url_merchant = ?, 
+                  platform_status = ?, 
                   updated_at = NOW() 
-              WHERE merchant_id = ?";
+              WHERE platform_id = ?";
         
         $stmt = $conn->prepare($query);
         $stmt->bind_param("sssssi", 
-            $merchant_name, 
-            $email, 
-            $phone, 
-            $address, 
-            $merchant_status,
-            $merchant_id
+            $platform_name, 
+            $platform_url, 
+            $platform_url_price, 
+            $platform_url_merchant, 
+            $platform_status,
+            $platform_id
         );
         if($stmt->execute()) {
             // success response
             $response["success"] = true;
-            $response["message"] = "Merchant was updated successfully.";
+            $response["message"] = "Platform was updated successfully.";
             http_response_code(200);
         } else {
             // error in execution
             $response["success"] = false;
-            $response["message"] = "Unable to update merchant.";
+            $response["message"] = "Unable to update platform.";
             http_response_code(503);
         }
     
@@ -72,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // required data is missing
         $response["success"] = false;
-        $response["message"] = "Unable to update merchant. Data is incomplete.";
+        $response["message"] = "Unable to update platform. Data is incomplete.";
         http_response_code(400);
     }   
     echo json_encode($response);

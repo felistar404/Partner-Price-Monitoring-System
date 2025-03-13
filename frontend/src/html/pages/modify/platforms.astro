@@ -29,6 +29,8 @@ const paginationArray = [];
 for (let i = 1; i <= totalPages; i++) {
   paginationArray.push(i);
 }
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE;
 ---
 
 <!doctype html>
@@ -186,17 +188,17 @@ for (let i = 1; i <= totalPages; i++) {
               
               <div class="mb-3">
                 <label for="platform_url" class="form-label">Platform URL</label>
-                <input type="url" class="form-control" id="platform_url" name="platform_url" required>
+                <input type="text" class="form-control" id="platform_url" name="platform_url" required>
               </div>
               
               <div class="row mb-3">
                 <div class="col-md-6">
                   <label for="platform_url_price" class="form-label">Platform URL (Product)</label>
-                  <input type="url" class="form-control" id="platform_url_price" name="platform_url_price" required>
+                  <input type="text" class="form-control" id="platform_url_price" name="platform_url_price" required>
                 </div>
                 <div class="col-md-6">
                   <label for="platform_url_merchant" class="form-label">Platform URL (Merchant)</label>
-                  <input type="url" class="form-control" id="platform_url_merchant" name="platform_url_merchant" required>
+                  <input type="text" class="form-control" id="platform_url_merchant" name="platform_url_merchant" required>
                 </div>
               </div>
               
@@ -239,10 +241,10 @@ for (let i = 1; i <= totalPages; i++) {
     <!--begin::Script-->
     <Scripts path={path} />
 
-    <script is:inline define:vars={{ totalPages, itemsPerPage }}>
+    <script is:inline define:vars={{ totalPages, itemsPerPage, apiBaseUrl }}>
       document.addEventListener('DOMContentLoaded', function() {
         let currentPage = 1;
-        const apiBaseUrl = window.PUBLIC_API_BASE || '';
+        // const apiBaseUrl = window.PUBLIC_API_BASE || '';
         
         // Pagination functionality
         function showPage(page) {
