@@ -1,0 +1,288 @@
+---
+import Head from "@components/_head.astro";
+import Footer from "@components/dashboard/_footer.astro";
+import Topbar from "@components/dashboard/_topbar.astro";
+import Sidenav from "@components/dashboard/_sidenav.astro";
+import Scripts from "@components/_scripts.astro";
+
+const title = "QNAP | Monitoring System";
+const path = "../../../dist";
+const mainPage = "dashboard";
+const page = "add-merchant";
+
+// Extract API base URL to pass to client script
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE;
+---
+
+<!doctype html>
+<html lang="en">
+  <!--begin::Head-->
+  <head>
+    <Head title={title} path={path} />
+  </head>
+  <!--end::Head-->
+  <!--begin::Body-->
+  <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
+      <Topbar path={path} />
+      <Sidenav path={path} mainPage={mainPage} page={page} />
+      <!--begin::App Main-->
+      <main class="app-main">
+        <!--begin::App Content Header-->
+        <div class="app-content-header">
+          <!--begin::Container-->
+          <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+              <div class="col-sm-6">
+                <h3 class="mb-0">Add New Merchant</h3>
+              </div>
+              <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                  <li class="breadcrumb-item"><a href="#">Home</a></li>
+                  <li class="breadcrumb-item">Add Items</li>
+                  <li class="breadcrumb-item active" aria-current="page">
+                    Merchants
+                  </li>
+                </ol>
+              </div>
+            </div>
+            <!--end::Row-->
+          </div>
+          <!--end::Container-->
+        </div>
+        <!--end::App Content Header-->
+        <!--begin::App Content-->
+        <div class="app-content">
+          <!--begin::Container-->
+          <div class="container-fluid">
+            <!--begin::Card-->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Add New Merchant</h3>
+              </div>
+              <div class="card-body">
+                <form id="addMerchantForm">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="merchant_name" class="form-label">Merchant Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="merchant_name" name="merchant_name" required>
+                        <div class="invalid-feedback">Merchant name is required</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="invalid-feedback">Valid email is required</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="phone" name="phone" required>
+                        <div class="invalid-feedback">Phone number is required</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="merchant_status" class="form-label">Status <span class="text-danger">*</span></label>
+                        <select class="form-select" id="merchant_status" name="merchant_status" required>
+                          <option value="" disabled selected>Select status</option>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a status</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                    <div class="invalid-feedback">Address is required</div>
+                  </div>
+                  
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-secondary me-md-2" id="resetBtn">Reset</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Merchant</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <!--end::Card-->
+          </div>
+          <!--end::Container-->
+        </div>
+        <!--end::App Content-->
+      </main>
+      <!--end::App Main-->
+      <Footer />
+    </div>
+    <!--end::App Wrapper-->
+    
+    <!-- Success/Error Alert Modal -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="alertTitle">Success</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="alertMessage"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="alertOkBtn">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!--begin::Script-->
+    <Scripts path={path} />
+
+    <script is:inline define:vars={{ apiBaseUrl }}>
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('addMerchantForm');
+        const resetBtn = document.getElementById('resetBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Reset form handler
+        resetBtn.addEventListener('click', function() {
+          form.reset();
+          // Remove validation classes
+          form.classList.remove('was-validated');
+          const inputs = form.querySelectorAll('input, select, textarea');
+          inputs.forEach(input => {
+            input.classList.remove('is-invalid');
+            input.classList.remove('is-valid');
+          });
+        });
+        
+        // Add form validation and submission
+        form.addEventListener('submit', async function(event) {
+          event.preventDefault();
+          
+          // Client-side validation
+          if (!form.checkValidity()) {
+            event.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+          }
+          
+          // Form data
+          const formData = {
+            merchant_name: document.getElementById('merchant_name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            address: document.getElementById('address').value,
+            merchant_status: document.getElementById('merchant_status').value
+          };
+          
+          try {
+            // Show loading state & send request to backend
+            submitBtn.disabled = true;
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+            
+            // Send API request
+            const response = await fetch(`${apiBaseUrl}/add_merchant.php`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            // Reset button state
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            
+            if (result.success) {
+              // Show success message
+              showAlert('Success', 'Merchant added successfully!', 'success', true);
+            } else {
+              // Show error message
+              showAlert('Error', result.message || 'Failed to add merchant. Please try again.', 'error');
+            }
+          } catch (error) {
+            console.error('Error adding merchant:', error);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            showAlert('Error', 'An error occurred while adding the merchant. Please try again.', 'error');
+          }
+        });
+        
+        // Function to show alert modal
+        function showAlert(title, message, type, resetFormOnClose = false) {
+          const alertModal = document.getElementById('alertModal');
+          const alertTitle = document.getElementById('alertTitle');
+          const alertMessage = document.getElementById('alertMessage');
+          const modalInstance = new bootstrap.Modal(alertModal);
+          
+          alertTitle.textContent = title;
+          alertMessage.textContent = message;
+          
+          if (type === 'error') {
+            alertTitle.classList.add('text-danger');
+            alertTitle.classList.remove('text-success');
+          } else {
+            alertTitle.classList.add('text-success');
+            alertTitle.classList.remove('text-danger');
+          }
+          
+          modalInstance.show();
+          
+          if (resetFormOnClose) {
+            document.getElementById('alertOkBtn').addEventListener('click', function onceHandler() {
+              form.reset();
+              form.classList.remove('was-validated');
+              const inputs = form.querySelectorAll('input, select, textarea');
+              inputs.forEach(input => {
+                input.classList.remove('is-invalid');
+                input.classList.remove('is-valid');
+              });
+              this.removeEventListener('click', onceHandler);
+            });
+          }
+        }
+        
+        // Add input validation event listeners
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+          input.addEventListener('change', function() {
+            if (this.checkValidity()) {
+              this.classList.remove('is-invalid');
+              this.classList.add('is-valid');
+            } else {
+              this.classList.remove('is-valid');
+              this.classList.add('is-invalid');
+            }
+          });
+        });
+        
+        // Email validation
+        document.getElementById('email').addEventListener('change', function() {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(this.value)) {
+            this.classList.add('is-invalid');
+            this.setCustomValidity('Please enter a valid email address');
+          } else {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+            this.setCustomValidity('');
+          }
+        });
+      });
+    </script>
+    <!--end::Script-->
+  </body><!--end::Body-->
+</html>
