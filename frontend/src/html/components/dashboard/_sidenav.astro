@@ -9,16 +9,9 @@ const htmlPath = convertPathToHtml(path);
   <!--begin::Sidebar Brand-->
   <div class="sidebar-brand">
     <!--begin::Brand Link-->
-    <a href={htmlPath + "/index.html"} class="brand-link">
-      <!--begin::Brand Image-->
-      <!-- <img
-        src={path + "/assets/img/AdminLTELogo.png"}
-        alt="AdminLTE Logo"
-        class="brand-image opacity-75 shadow"
-      /> -->
-      <!--end::Brand Image-->
+    <a href={htmlPath + "/index.html"} class="brand-link d-flex align-items-center justify-content-center w-100">
       <!--begin::Brand Text-->
-      <span class="brand-text fw-light">Monitoring System</span>
+      <span class="brand-text fw-light text-center">Monitoring System</span>
       <!--end::Brand Text-->
     </a>
     <!--end::Brand Link-->
@@ -103,8 +96,8 @@ const htmlPath = convertPathToHtml(path);
           <ul class="nav nav-treeview">
             <li class="nav-item">
               <a
-                href={htmlPath + "/add/products.html"}
-                class:list={["nav-link", page === "add-products" && "active"]}
+                href={htmlPath + "/add/product.html"}
+                class:list={["nav-link", page === "add-product" && "active"]}
               >
                 <i class="nav-icon bi bi-box"></i>
                 <p>Products</p>
@@ -126,6 +119,15 @@ const htmlPath = convertPathToHtml(path);
               >
                 <i class="nav-icon bi bi-display"></i>
                 <p>Platform</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/add/product_to_platform.html"}
+                class:list={["nav-link", page === "add-product-to-platform" && "active"]}
+              >
+                <i class="nav-icon bi bi-link"></i>
+                <p>Product to platform</p>
               </a>
             </li>
           </ul>

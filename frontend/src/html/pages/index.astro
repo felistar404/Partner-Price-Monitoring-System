@@ -12,11 +12,17 @@ const page = "index";
 
 // fetch all price records from API
 let records = [];
+let latestUpdate = null;
 try {
   const apiBaseUrl = import.meta.env.PUBLIC_API_BASE;
   const response = await fetch(`${apiBaseUrl}/get_price_records.php`);
   const data = await response.json();
   records = data.records || [];
+  
+  // Fetch the latest update date
+  const latestDateResponse = await fetch(`${apiBaseUrl}/get_latest_date.php`);
+  const latestDateData = await latestDateResponse.json();
+  latestUpdate = latestDateData.latest_update;
 } catch (error) {
   console.error("Error:", error);
 }
@@ -94,13 +100,20 @@ for (let i = 1; i <= totalPages; i++) {
               <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title mb-0">Monitoring Data</h3>
                 <div class="ms-auto">
-                  <div class="btn-group">
-                    <button id="export-btn" class="btn btn-sm btn-outline-success" title="Export to Excel">
-                      <i class="bi bi-download"></i> Export
-                    </button>
-                    <button id="refresh-btn" class="btn btn-sm btn-outline-primary" title="Refresh data">
-                      <i class="bi bi-arrow-clockwise"></i> Refresh
-                    </button>
+                  <div class="d-flex align-items-center">
+                    {latestUpdate && (
+                      <div class="text-muted me-3">
+                        <small>Last updated: {new Date(latestUpdate).toLocaleString()}</small>
+                      </div>
+                    )}
+                    <div class="btn-group">
+                      <button id="export-btn" class="btn btn-sm btn-outline-success" title="Export to Excel">
+                        <i class="bi bi-download"></i> Export
+                      </button>
+                      <button id="refresh-btn" class="btn btn-sm btn-outline-primary" title="Refresh data">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -317,13 +330,19 @@ for (let i = 1; i <= totalPages; i++) {
           const statusElement = document.getElementById('processingStatus');
           const progressBar = document.getElementById('processingProgress');
 
-        })
-      })
-
-
-        
+          try {
+            // After successful refresh, reload the page to get updated data
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } catch (error) {
+            console.error('Error refreshing data:', error);
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh';
+            processingModal.hide();
+          }
+        });
+      });
     </script>
-
-
   </body><!--end::Body-->
 </html>
