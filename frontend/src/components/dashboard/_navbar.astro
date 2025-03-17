@@ -1,0 +1,120 @@
+---
+interface Props {
+  pageTitle?: string;
+  breadcrumbs?: Array<{label: string, href?: string}>;
+}
+
+const { 
+  pageTitle = "Price Records",
+  breadcrumbs = [
+    { label: "Pages" },
+    { label: pageTitle }
+  ]
+} = Astro.props;
+---
+
+<nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl navbar-with-border" id="navbarBlur" data-scroll="true">
+  <div class="container-fluid py-1 px-3">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+        {breadcrumbs.map((item, index) => (
+          <li class={`breadcrumb-item text-sm ${index === breadcrumbs.length - 1 ? 'text-dark active' : 'opacity-5 text-dark'}`} aria-current={index === breadcrumbs.length - 1 ? 'page' : undefined}>
+            {item.href ? 
+              <a href={item.href}>{item.label}</a> : 
+              item.label
+            }
+          </li>
+        ))}
+      </ol>
+    </nav>
+    
+    <!-- Navbar elements -->
+    <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+      <!-- Push element towards right-handed side -->
+      <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+        <div class="input-group input-group-outline">
+        </div>
+      </div>
+      
+      <!-- Right-side navbar items -->
+      <ul class="navbar-nav d-flex align-items-center justify-content-end">
+        
+        <!-- Mobile menu button -->
+        <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+          <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+            <div class="sidenav-toggler-inner">
+              <i class="sidenav-toggler-line"></i>
+              <i class="sidenav-toggler-line"></i>
+              <i class="sidenav-toggler-line"></i>
+            </div>
+          </a>
+        </li>
+        
+        <!-- Fullscreen button -->
+        <li class="nav-item d-flex align-items-center">
+          <a href="javascript:;" class="nav-link text-body p-0" id="fullscreenButton">
+            <i class="material-symbols-rounded fullscreen-icon">fullscreen</i>
+          </a>
+        </li>
+        
+        <!-- Settings -->
+        <li class="nav-item px-3 d-flex align-items-center">
+          <a href="javascript:;" class="nav-link text-body p-0">
+            <i class="material-symbols-rounded fixed-plugin-button-nav">settings</i>
+          </a>
+        </li>
+        
+
+        <!-- User account icon -->
+        <li class="nav-item d-flex align-items-center">
+          <a href="#" class="nav-link text-body font-weight-bold px-0">
+            <i class="material-symbols-rounded me-1">language</i>
+          </a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<script>
+  // Fullscreen functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const fullscreenButton = document.getElementById('fullscreenButton');
+    const fullscreenIcon = fullscreenButton.querySelector('.fullscreen-icon');
+    
+    fullscreenButton.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        // Enter fullscreen
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen();
+          fullscreenIcon.textContent = 'fullscreen_exit';
+        }
+      } else {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          fullscreenIcon.textContent = 'fullscreen';
+        }
+      }
+    });
+    
+    // Update icon when fullscreen changes outside of our control (e.g., Esc key)
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        fullscreenIcon.textContent = 'fullscreen_exit';
+      } else {
+        fullscreenIcon.textContent = 'fullscreen';
+      }
+    });
+  });
+</script>
+
+<style>
+  /* Add permanent border to navbar */
+  .navbar-with-border {
+    box-shadow: 0 2px 3px -1px rgba(0, 0, 0, 0.06), 0 1px 2px 0px rgba(0, 0, 0, 0.03), 0 1px 1px 0px rgba(0, 0, 0, 0.02) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+</style>

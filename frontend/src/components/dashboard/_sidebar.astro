@@ -1,0 +1,187 @@
+---
+// Props that can be passed to this component
+interface Props {
+  activePage?: string;
+  mainPage?: string;
+  page?: string;
+  brand?: {
+    name: string;
+    logo: string;
+    href: string;
+  };
+}
+
+// HTML path for links
+const htmlPath = ""; // adjust if needed
+
+// Default values for props
+const { 
+  activePage = "main",
+  mainPage = "main",
+  page = "",
+  brand = {
+    name: "Monitoring System",
+    logo: "/assets/img/logo-ct-dark.png",
+    href: htmlPath + "/index.html"
+  }
+} = Astro.props;
+
+// Main display pages
+const displayItems = [
+  { id: "main", icon: "table_view", label: "Price Records", href: htmlPath + "/index.html" },
+];
+
+// Modify items
+const modifyItems = [
+  { id: "modify-products", icon: "inventory_2", label: "Products", href: htmlPath + "/modify/products.html" },
+  { id: "modify-merchants", icon: "store", label: "Merchants", href: htmlPath + "/modify/merchants.html" },
+  { id: "modify-platforms", icon: "devices", label: "Platforms", href: htmlPath + "/modify/platforms.html" }
+];
+
+// Documentation items
+const documentationItems = [
+  { id: "user-manual", icon: "person", label: "User Manual", href: htmlPath + "/docs/user-manual.html" },
+  { id: "developer-manual", icon: "code", label: "Developer Manual", href: htmlPath + "/docs/developer-manual.html" }
+];
+
+// Function to determine if a navigation item is active
+function isActive(itemId) {
+  // If we're on a specific page (like a modify page), prioritize that over mainPage
+  if (page && page === itemId) {
+    return true;
+  }
+  
+  if (activePage && activePage === itemId) {
+    return true;
+  }
+  
+  // Only consider mainPage for display items if we're not on a specific page
+  if (!page && !activePage && displayItems.some(item => item.id === itemId)) {
+    return mainPage === itemId;
+  }
+  
+  return false;
+}
+---
+
+<aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2" id="sidenav-main">
+  <!-- Sidenav header with brand name only (no logo) -->
+  <div class="sidenav-header">
+    <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+    <a class="navbar-brand d-flex justify-content-center align-items-center px-4 py-3 m-0" href={brand.href}>
+      <span class="text-sm text-dark">{brand.name}</span>
+    </a>
+  </div>
+  
+  <hr class="horizontal dark mt-0 mb-2">
+  
+  <!-- Navigation items -->
+  <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
+    <ul class="navbar-nav">
+      <!-- Main Pages section -->
+      <li class="nav-item mt-3">
+        <div class="section-header">
+          <span class="text-uppercase text-xs text-dark font-weight-bolder opacity-5">Main Page</span>
+        </div>
+      </li>
+
+      {displayItems.map(item => (
+        <li class="nav-item">
+          <a 
+            class={`nav-link ${isActive(item.id) ? 'active bg-gradient-dark text-white' : 'text-dark'}`} 
+            href={item.href}
+          >
+            <i class="material-symbols-rounded opacity-5">{item.icon}</i>
+            <span class="nav-link-text ms-1">{item.label}</span>
+          </a>
+        </li>
+      ))}
+      
+      <!-- Modify Items section -->
+      <li class="nav-item mt-3">
+        <div class="section-header">
+          <span class="text-uppercase text-xs text-dark font-weight-bolder opacity-5">Modify Items</span>
+        </div>
+      </li>
+      
+      {modifyItems.map(item => (
+        <li class="nav-item">
+          <a 
+            class={`nav-link ${isActive(item.id) ? 'active bg-gradient-dark text-white' : 'text-dark'}`}
+            href={item.href}
+          >
+            <i class="material-symbols-rounded opacity-5">{item.icon}</i>
+            <span class="nav-link-text ms-1">{item.label}</span>
+          </a>
+        </li>
+      ))}
+      
+      <!-- Documentation section -->
+      <li class="nav-item mt-3">
+        <div class="section-header">
+          <span class="text-uppercase text-xs text-dark font-weight-bolder opacity-5">Documentations</span>
+        </div>
+      </li>
+      
+      {documentationItems.map(item => (
+        <li class="nav-item">
+          <a 
+            class={`nav-link ${isActive(item.id) ? 'active bg-gradient-dark text-white' : 'text-dark'}`}
+            href={item.href}
+          >
+            <i class="material-symbols-rounded opacity-5">{item.icon}</i>
+            <span class="nav-link-text ms-1">{item.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+  
+  <!-- Footer links -->
+  <div class="sidenav-footer position-absolute w-100 bottom-0">
+    <div class="mx-3">
+      <a class="btn btn-outline-dark mt-4 w-100 mb-3" href={htmlPath + "/docs/user-manual.html"} type="button">Link to Source Code</a>
+    </div>
+  </div>
+</aside>
+
+<style>
+  /* Hover effects for nav links */
+  .nav-link:not(.active):hover {
+    background-color: rgba(233, 236, 239, 0.8);
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /* Space between items for better readability */
+  .nav-item:not(.mt-3) {
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Active link styling reinforcement */
+  .nav-link.active {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Section headers with lines on both sides */
+  .section-header {
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .section-header::before,
+  .section-header::after {
+    content: "";
+    height: 1px;
+    background-color: rgba(52, 71, 103, 0.3);
+    flex-grow: 1;
+  }
+  
+  .section-header span {
+    padding: 0 10px;
+    color: #344767;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+</style>

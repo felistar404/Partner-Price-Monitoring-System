@@ -1,0 +1,608 @@
+---
+// filepath: /Applications/XAMPP/xamppfiles/htdocs/monitoring_system/frontend/src/pages/modify/products.astro
+import DashboardLayout from "../../layouts/dashboardLayout.astro";
+
+// fetch all products from API
+const apiBaseUrl = import.meta.env.PUBLIC_API_BASE || '/api';
+let products = [];
+let latestUpdate = null;
+
+try {
+  const response = await fetch(`${apiBaseUrl}/get_products.php`);
+  const data = await response.json();
+  products = data.records || [];
+  
+  // Fetch the latest update date
+  const latestDateResponse = await fetch(`${apiBaseUrl}/get_latest_date.php`);
+  const latestDateData = await latestDateResponse.json();
+  latestUpdate = latestDateData.latest_update;
+} catch (error) {
+  console.error("Error:", error);
+}
+
+// calculate total pages and set max elements per page for table
+const itemsPerPage = 10;
+const totalPages = Math.ceil(products.length / itemsPerPage);
+
+const paginationArray = [];
+for (let i = 1; i <= totalPages; i++) {
+  paginationArray.push(i);
+}
+---
+
+<DashboardLayout 
+  title="Products | QNAP Monitoring System"
+  pageTitle="Modify Products" 
+  activePage="modify-products"
+  breadcrumbs={[
+    { label: "Home", href: "/" },
+    { label: "Modify Items" },
+    { label: "Products" }
+  ]}
+>
+  <style>
+    .search-container {
+      position: relative;
+    }
+    
+    .search-container i {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+    
+    .form-control:focus + i {
+      color: #344767;
+    }
+    
+    .table-responsive {
+      overflow-x: auto;
+    }
+    
+    .action-btn {
+      padding: 0.40rem 0.75rem;
+      font-size: 0.75rem;
+    }
+    
+    .badge.badge-sm {
+      font-size: 0.65rem;
+      padding: 0.35em 0.65em;
+    }
+    
+    .pagination {
+      margin-bottom: 0;
+    }
+    
+    .modal-header {
+      padding-bottom: 0.5rem;
+    }
+    
+    .modal-footer {
+      padding-top: 0.75rem;
+    }
+    
+    .form-label {
+      font-size: 0.875rem;
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+    }
+    
+    .spinner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    
+    /* Add subtle animation to updated rows */
+    @keyframes highlightRow {
+      0% { background-color: rgba(66, 184, 131, 0.2); }
+      100% { background-color: transparent; }
+    }
+    
+    .row-updated {
+      animation: highlightRow 2s ease-out;
+    }
+  </style>
+
+  <!-- Main Content -->
+  <div class="container-fluid py-2">
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card">
+          <!-- Card Header with Title and Search -->
+          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+            <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+              <h6 class="text-white text-capitalize ps-3 mb-0">Products List</h6>
+              
+              <div class="pe-3 d-flex align-items-center">
+                <div class="input-group input-group-outline me-2 bg-white border-radius-md">
+                  <label class="form-label">Search products...</label>
+                  <input type="text" id="product-search" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card Body with Table -->
+          <div class="card-body px-0 pb-2">
+            <div class="table-responsive p-0">
+              <table class="table align-items-center mb-0" id="products-table">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Product Name</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Model</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Reference Price</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Min Price</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Max Price</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.length > 0 ? (
+                    products.map((product: any, index: number) => (
+                      <tr class="table-row" data-page={Math.floor(index / itemsPerPage) + 1} data-product={JSON.stringify(product)}>
+                        <td>
+                          <div class="d-flex px-3 py-1">
+                            <p class="text-xs font-weight-bold mb-0">{product.product_id}</p>
+                          </div>
+                        </td>
+                        <td>
+                          <p class="text-xs font-weight-bold mb-0">{product.product_name}</p>
+                        </td>
+                        <td>
+                          <p class="text-xs font-weight-bold mb-0">{product.product_model}</p>
+                        </td>
+                        <td class="text-center">
+                          <p class="text-xs font-weight-bold mb-0">${product.reference_price}</p>
+                        </td>
+                        <td class="text-center">
+                          <p class="text-xs font-weight-bold mb-0">${product.min_acceptable_price}</p>
+                        </td>
+                        <td class="text-center">
+                          <p class="text-xs font-weight-bold mb-0">${product.max_acceptable_price}</p>
+                        </td>
+                        <td class="text-center">
+                          <span class={`badge badge-sm ${product.product_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger'}`}>
+                            {product.product_status}
+                          </span>
+                        </td>
+                        <td class="text-center">
+                          <button 
+                            class="btn btn-sm bg-gradient-primary edit-btn" 
+                            data-product-id={product.product_id} 
+                            title="Edit Product">
+                            <i class="material-symbols-rounded">edit</i>&nbsp;Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colspan="8" class="text-center py-4">
+                        <div class="alert alert-info mb-0">
+                          <h4><i class="material-symbols-rounded">info</i> No products found</h4>
+                          <p>There are no products available in the database.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Card Footer with Pagination -->
+          <div class="card-footer d-flex justify-content-center">
+            <nav aria-label="Page navigation">
+              <ul class="pagination justify-content-center" id="pagination">
+                <li class="page-item page-prev disabled">
+                  <a class="page-link" href="#" tabindex="-1">
+                    <i class="material-symbols-rounded">chevron_left</i>
+                    <!-- <span class="sr-only">Previous</span> -->
+                  </a>
+                </li>
+                {paginationArray.map(pageNum => (
+                  <li class={`page-item page-number ${pageNum === 1 ? 'active' : ''}`} data-page={pageNum}>
+                    <a class="page-link" href="#">{pageNum}</a>
+                  </li>
+                ))}
+                <li class={`page-item page-next ${totalPages <= 1 ? 'disabled' : ''}`}>
+                  <a class="page-link" href="#">
+                    <i class="material-symbols-rounded">chevron_right</i>
+                    <!-- <span class="sr-only">Next</span> -->
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Edit Product Modal -->
+  <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-gradient-primary">
+          <h5 class="modal-title text-white" id="editProductModalLabel">Edit Product</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editProductForm">
+            <input type="hidden" id="product_id" name="product_id">
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <div class="input-group input-group-static mb-3">
+                  <label for="product_name" class="ms-0">Product Name</label>
+                  <input type="text" class="form-control" id="product_name" name="product_name" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group input-group-static mb-3">
+                  <label for="product_model" class="ms-0">Product Model</label>
+                  <input type="text" class="form-control" id="product_model" name="product_model" required>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <div class="input-group input-group-static mb-3">
+                  <label for="reference_price" class="ms-0">Reference Price</label>
+                  <input type="number" class="form-control" id="reference_price" name="reference_price" step="0.01" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="input-group input-group-static mb-3">
+                  <label for="min_acceptable_price" class="ms-0">Min Acceptable Price</label>
+                  <input type="number" class="form-control" id="min_acceptable_price" name="min_acceptable_price" step="0.01" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="input-group input-group-static mb-3">
+                  <label for="max_acceptable_price" class="ms-0">Max Acceptable Price</label>
+                  <input type="number" class="form-control" id="max_acceptable_price" name="max_acceptable_price" step="0.01" required>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <div class="input-group input-group-static mb-3">
+                  <label for="product_status" class="ms-0">Status</label>
+                  <select class="form-control" id="product_status" name="product_status" required>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="input-group input-group-static mb-3">
+              <label for="product_description" class="ms-0">Description</label>
+              <textarea class="form-control" id="product_description" name="product_description" rows="3"></textarea>
+            </div>
+            
+            <div class="row text-sm text-muted">
+              <div class="col-md-6">
+                <p class="mb-0">Created: <span id="created_at"></span></p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-0">Last Updated: <span id="updated_at"></span></p>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn bg-gradient-primary" id="saveProductBtn">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Success/Error Alert Modal -->
+  <div class="modal fade" id="alertModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="alertTitle">Success</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="alertMessage">Product updated successfully!</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn bg-gradient-primary" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline define:vars={{ totalPages, itemsPerPage, apiBaseUrl }}>
+    document.addEventListener('DOMContentLoaded', function() {
+      let currentPage = 1;
+      
+      // Initialize Material Dashboard Components
+      if (document.querySelectorAll('.input-group.input-group-outline').length > 0) {
+        // Handle floating labels in material inputs
+        const materialInputs = document.querySelectorAll('.input-group.input-group-outline .form-control');
+        materialInputs.forEach(input => {
+          input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused', 'is-focused');
+          });
+          
+          input.addEventListener('blur', function() {
+            if (this.value === '') {
+              this.parentElement.classList.remove('focused', 'is-focused');
+            } else {
+              this.parentElement.classList.remove('is-focused');
+            }
+          });
+          
+          // Initialize on load
+          if (input.value !== '') {
+            input.parentElement.classList.add('focused');
+          }
+        });
+      }
+      
+      // Pagination functionality
+      function showPage(page) {
+        document.querySelectorAll('#products-table .table-row').forEach(row => {
+          row.style.display = 'none';
+        });
+
+        document.querySelectorAll(`#products-table .table-row[data-page="${page}"]`).forEach(row => {
+          row.style.display = '';
+        });
+
+        document.querySelectorAll('#pagination .page-number').forEach(item => {
+          item.classList.remove('active');
+        });
+        document.querySelector(`#pagination .page-number[data-page="${page}"]`)?.classList.add('active');
+        document.querySelector('.page-prev').classList.toggle('disabled', page === 1);
+        document.querySelector('.page-next').classList.toggle('disabled', page === totalPages || totalPages === 0);
+        
+        currentPage = page;
+      }
+
+      // Show first page initially
+      showPage(1);
+
+      document.querySelectorAll('#pagination .page-number').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const page = parseInt(this.getAttribute('data-page'));
+          showPage(page);
+        });
+      });
+
+      document.querySelector('.page-prev')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (currentPage > 1) {
+          showPage(currentPage - 1);
+        }
+      });
+
+      document.querySelector('.page-next')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (currentPage < totalPages) {
+          showPage(currentPage + 1);
+        }
+      });
+      
+      // Product search functionality
+      const productSearch = document.getElementById('product-search');
+      productSearch?.addEventListener('input', function() {
+        const searchText = this.value.toLowerCase();
+        let visibleItems = 0;
+        
+        document.querySelectorAll('#products-table .table-row').forEach(row => {
+          const productName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+          const productModel = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+          
+          if (productName.includes(searchText) || productModel.includes(searchText)) {
+            row.style.display = '';
+            visibleItems++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+        
+        // Show "no results" message if no matching products
+        if (visibleItems === 0) {
+          const noResultsRow = document.createElement('tr');
+          noResultsRow.id = 'no-results-row';
+          noResultsRow.innerHTML = '<td colspan="8" class="text-center py-4"><div class="alert alert-info mb-0"><h4><i class="material-symbols-rounded">search_off</i> No results found</h4><p>No products match your search criteria.</p></div></td>';
+          
+          const existingNoResults = document.getElementById('no-results-row');
+          if (!existingNoResults) {
+            document.querySelector('#products-table tbody').appendChild(noResultsRow);
+          }
+        } else {
+          const existingNoResults = document.getElementById('no-results-row');
+          if (existingNoResults) {
+            existingNoResults.remove();
+          }
+        }
+      });
+
+      // Edit button click handler
+      document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const productRow = this.closest('tr');
+          const productData = JSON.parse(productRow.dataset.product);
+          
+          // Fill form with product data
+          document.getElementById('product_id').value = productData.product_id;
+          document.getElementById('product_name').value = productData.product_name;
+          document.getElementById('product_model').value = productData.product_model;
+          document.getElementById('reference_price').value = productData.reference_price;
+          document.getElementById('min_acceptable_price').value = productData.min_acceptable_price;
+          document.getElementById('max_acceptable_price').value = productData.max_acceptable_price;
+          document.getElementById('product_status').value = productData.product_status;
+          document.getElementById('product_description').value = productData.product_description || '';
+          document.getElementById('created_at').textContent = productData.created_at || 'N/A';
+          document.getElementById('updated_at').textContent = productData.updated_at || 'N/A';
+          
+          // Add "focused" class to non-empty input parents for proper styling
+          document.querySelectorAll('#editProductForm .input-group-static').forEach(group => {
+            const input = group.querySelector('input, select, textarea');
+            if (input && input.value !== '') {
+              group.classList.add('focused');
+            }
+          });
+          
+          // Show modal
+          const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+          editModal.show();
+        });
+      });
+      
+      // Save button click handler
+      document.getElementById('saveProductBtn')?.addEventListener('click', async function() {
+        const form = document.getElementById('editProductForm');
+        
+        // Basic form validation
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        
+        // Price validation
+        const refPrice = parseFloat(document.getElementById('reference_price').value);
+        const minPrice = parseFloat(document.getElementById('min_acceptable_price').value);
+        const maxPrice = parseFloat(document.getElementById('max_acceptable_price').value);
+        
+        if (minPrice > refPrice) {
+          showAlert('Validation Error', 'Minimum price cannot be greater than reference price', 'error');
+          document.getElementById('min_acceptable_price').classList.add('is-invalid');
+          return;
+        }
+        
+        if (maxPrice < refPrice) {
+          showAlert('Validation Error', 'Maximum price cannot be less than reference price', 'error');
+          document.getElementById('max_acceptable_price').classList.add('is-invalid');
+          return;
+        }
+        
+        // Get form data
+        const formData = {
+          product_id: document.getElementById('product_id').value,
+          product_name: document.getElementById('product_name').value,
+          product_model: document.getElementById('product_model').value,
+          reference_price: document.getElementById('reference_price').value,
+          min_acceptable_price: document.getElementById('min_acceptable_price').value,
+          max_acceptable_price: document.getElementById('max_acceptable_price').value,
+          product_status: document.getElementById('product_status').value,
+          product_description: document.getElementById('product_description').value || ''
+        };
+        
+        try {
+          // Show loading state
+          const saveBtn = document.getElementById('saveProductBtn');
+          const originalBtnText = saveBtn.innerHTML;
+          saveBtn.disabled = true;
+          saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+          
+          // Send API request
+          const response = await fetch(`${apiBaseUrl}/update_product.php`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+          });
+          
+          const result = await response.json();
+          
+          // Reset button state and close modal
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = originalBtnText;
+          bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+          
+          if (result.success) {
+            // Show success message
+            showAlert('Success', 'Product updated successfully!', 'success');
+            
+            // Update table row with new data
+            const updatedRow = document.querySelector(`.edit-btn[data-product-id="${formData.product_id}"]`).closest('tr');
+            if (updatedRow) {
+              const cells = updatedRow.querySelectorAll('td');
+              cells[1].querySelector('p').textContent = formData.product_name;
+              cells[2].querySelector('p').textContent = formData.product_model;
+              cells[3].querySelector('p').textContent = formData.reference_price;
+              cells[4].querySelector('p').textContent = formData.min_acceptable_price;
+              cells[5].querySelector('p').textContent = formData.max_acceptable_price;
+              cells[6].innerHTML = `<span class="badge badge-sm ${formData.product_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger'}">${formData.product_status}</span>`;
+              
+              // Update data attribute
+              const productData = JSON.parse(updatedRow.dataset.product);
+              productData.product_name = formData.product_name;
+              productData.product_model = formData.product_model;
+              productData.reference_price = formData.reference_price;
+              productData.min_acceptable_price = formData.min_acceptable_price;
+              productData.max_acceptable_price = formData.max_acceptable_price;
+              productData.product_status = formData.product_status;
+              productData.product_description = formData.product_description;
+              productData.updated_at = new Date().toISOString().replace('T', ' ').substr(0, 19);
+              updatedRow.dataset.product = JSON.stringify(productData);
+              
+              // Highlight updated row
+              updatedRow.classList.add('row-updated');
+              setTimeout(() => {
+                updatedRow.classList.remove('row-updated');
+              }, 2000);
+            }
+          } else {
+            // Show error message
+            showAlert('Error', result.message || 'Failed to update product. Please try again.', 'error');
+          }
+        } catch (error) {
+          console.error('Error updating product:', error);
+          
+          // Show error message
+          showAlert('Error', 'An error occurred while updating the product. Please try again.', 'error');
+          
+          // Reset button state
+          document.getElementById('saveProductBtn').disabled = false;
+          document.getElementById('saveProductBtn').innerHTML = originalBtnText;
+        }
+      });
+      
+      // Display alert modal
+      function showAlert(title, message, type) {
+        const alertTitle = document.getElementById('alertTitle');
+        const alertMessage = document.getElementById('alertMessage');
+        
+        alertTitle.textContent = title;
+        alertMessage.textContent = message;
+        
+        if (type === 'error') {
+          alertTitle.classList.add('text-danger');
+          alertTitle.classList.remove('text-success');
+        } else {
+          alertTitle.classList.add('text-success');
+          alertTitle.classList.remove('text-danger');
+        }
+        
+        const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
+        alertModal.show();
+      }
+    });
+  </script>
+</DashboardLayout>

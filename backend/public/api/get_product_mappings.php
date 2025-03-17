@@ -41,7 +41,7 @@ while ($row = $result->fetch_assoc()) {
     $records[] = $row;
 }
 
-// Return the records with success status
+// return the records with success status
 echo json_encode([
     'success' => true,
     'records' => $records
