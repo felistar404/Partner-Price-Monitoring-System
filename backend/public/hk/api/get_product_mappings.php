@@ -1,6 +1,6 @@
 <?php
 // backend/public/api/get_product_mappings.php
-require_once '../../config/conn.php';
+require_once '../../../config/conn.php';
 
 // headers
 header('Content-Type: application/json');

@@ -1,6 +1,6 @@
 <?php
 // backend/public/api/get_latest_date.php
-require_once '../../config/conn.php';
+require_once '../../../config/conn.php';
 
 // headers
 header('Content-Type: application/json');

@@ -11,6 +11,7 @@ interface Props {
   description?: string;
   activePage?: string;
   pageTitle?: string;
+  region?: string;
   breadcrumbs?: Array<{label: string, href?: string}>;
 }
 
@@ -19,6 +20,7 @@ const {
   description,
   activePage = "main",
   pageTitle = "main",
+  region = "",
   breadcrumbs = [
     { label: "Pages" },
     { label: pageTitle }
@@ -34,7 +36,7 @@ const {
 
 <body class="g-sidenav-show bg-gray-100">
   <!-- Sidebar -->
-  <Sidebar activePage={activePage} />
+  <Sidebar activePage={activePage} region={region} />
   
   <!-- Main Content -->
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">

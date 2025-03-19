@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // align with frontend code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // include database connection
-    include_once '../../config/conn.php';
+    include_once '../../../config/conn.php';
     
     // get data from frontend
     $data = json_decode(file_get_contents(filename: "php://input"));
@@ -24,39 +24,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // validate the data
     if(
-        !empty($data->platform_name) &&
-        !empty($data->platform_url) &&
-        !empty($data->platform_url_price) &&
-        !empty($data->platform_url_merchant) &&
-        !empty($data->platform_status)
+        !empty($data->mapping_id) 
     ) {
-        $platform_name = htmlspecialchars(strip_tags($data->platform_name));
-        $platform_url = htmlspecialchars(strip_tags($data->platform_url));
-        $platform_url_price = htmlspecialchars(strip_tags($data->platform_url_price));
-        $platform_url_merchant = htmlspecialchars(strip_tags($data->platform_url_merchant));
-        $platform_status = htmlspecialchars(strip_tags($data->platform_status));
+        $mapping_id = htmlspecialchars(strip_tags($data->mapping_id));
     
-        $query = "INSERT INTO platforms 
-                (platform_name, platform_url, platform_url_price, platform_url_merchant, platform_status) 
-                VALUES (?, ?, ?, ?, ?)";
+        $query = "DELETE FROM product_url_mappings WHERE mapping_id = ?";
         
         $stmt = $conn->prepare($query);
-        $stmt->bind_param("sssss", 
-            $platform_name, 
-            $platform_url, 
-            $platform_url_price, 
-            $platform_url_merchant, 
-            $platform_status
+        $stmt->bind_param("i", 
+            $mapping_id
         );
         if($stmt->execute()) {
             // success response
             $response["success"] = true;
-            $response["message"] = "platform was added successfully.";
+            $response["message"] = "mapping delete successfully.";
             http_response_code(200);
         } else {
             // error in execution
             $response["success"] = false;
-            $response["message"] = "Unable to add platform. " . $conn->error;
+            $response["message"] = "Unable to delete target mapping. " . $conn->error;
             http_response_code(503);
         }
     
@@ -64,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // required data is missing
         $response["success"] = false;
-        $response["message"] = "Unable to add platform. Data is incomplete.";
+        $response["message"] = "Unable to delete mapping. Cannot found target id.";
         http_response_code(400);
     }   
     echo json_encode($response);

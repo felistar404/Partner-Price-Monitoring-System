@@ -4,6 +4,7 @@ interface Props {
   activePage?: string;
   mainPage?: string;
   page?: string;
+  region?: string;
   brand?: {
     name: string;
     logo: string;
@@ -19,6 +20,7 @@ const {
   activePage = "main",
   mainPage = "main",
   page = "",
+  region = "",
   brand = {
     name: "Monitoring System",
     logo: "/assets/img/logo-ct-dark.png",
@@ -26,16 +28,18 @@ const {
   }
 } = Astro.props;
 
+const basePath = region ? `/${region}` : "";
+
 // Main display pages
 const displayItems = [
-  { id: "main", icon: "table_view", label: "Price Records", href: htmlPath + "/index.html" },
+  { id: "main", icon: "table_view", label: "Price Records", href: htmlPath + `${basePath}/` },
 ];
 
 // Modify items
 const modifyItems = [
-  { id: "modify-products", icon: "inventory_2", label: "Products", href: htmlPath + "/modify/products.html" },
-  { id: "modify-merchants", icon: "store", label: "Merchants", href: htmlPath + "/modify/merchants.html" },
-  { id: "modify-platforms", icon: "devices", label: "Platforms", href: htmlPath + "/modify/platforms.html" }
+  { id: "modify-products", icon: "inventory_2", label: "Products", href: `${basePath}/modify/products` },
+  { id: "modify-merchants", icon: "store", label: "Merchants", href: `${basePath}/modify/merchants` },
+  { id: "modify-platforms", icon: "devices", label: "Platforms", href: `${basePath}/modify/platforms` }
 ];
 
 // Documentation items

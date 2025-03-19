@@ -1,6 +1,6 @@
 <?php
-// backend/public/api/get_platforms.php
-require_once '../../config/conn.php';
+// backend/public/api/get_merchants.php
+require_once '../../../config/conn.php';
 
 // headers
 header('Content-Type: application/json');
@@ -12,19 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-// query to get platforms 
-$platforms_Query = "SELECT * FROM platforms";
-$platformsResult = $conn->query($platforms_Query);
+// query to get merchant 
+$merchant_Query = "SELECT * FROM merchants";
+$merchantResult = $conn->query($merchant_Query);
 
-if (!$platformsResult) {
+if (!$merchantResult) {
     http_response_code(500); // server side error
     echo json_encode(['error' => 'Database query failed', 'records' => []]);
     exit;
 } 
 
 $records = [];
-if ($platformsResult) {
-    while ($row = $platformsResult->fetch_assoc()) {
+if ($merchantResult) {
+    while ($row = $merchantResult->fetch_assoc()) {
         $records[] = $row;
     }
 }

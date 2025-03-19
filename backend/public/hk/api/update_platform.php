@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // For actual POST requests, continue with the existing code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Include database connection
-    include_once '../../config/conn.php';
+    include_once '../../../config/conn.php';
     
     // get data from frontend
     $data = json_decode(file_get_contents("php://input"));

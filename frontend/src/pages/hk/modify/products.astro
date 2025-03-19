@@ -1,11 +1,12 @@
 ---
-// filepath: /Applications/XAMPP/xamppfiles/htdocs/monitoring_system/frontend/src/pages/modify/products.astro
-import DashboardLayout from "../../layouts/dashboardLayout.astro";
+import DashboardLayout from "../../../layouts/dashboardLayout.astro";
 
 // fetch all products from API
-const apiBaseUrl = import.meta.env.PUBLIC_API_BASE || '/api';
+const apiBaseUrl = import.meta.env.HK_PUBLIC_API_BASE || '/api';
 let products = [];
 let latestUpdate = null;
+
+const region = "hk";
 
 try {
   const response = await fetch(`${apiBaseUrl}/get_products.php`);
@@ -34,15 +35,71 @@ for (let i = 1; i <= totalPages; i++) {
   title="Products | QNAP Monitoring System"
   pageTitle="Modify Products" 
   activePage="modify-products"
+  region={region}
   breadcrumbs={[
-    { label: "Home", href: "/" },
+    { label: "Home", href: `/${region}/` },
     { label: "Modify Items" },
     { label: "Products" }
   ]}
 >
   <style>
+    .input-group.input-group-outline.custom-search {
+      --bs-primary: #747b8a;
+      --bs-primary-rgb: 116, 123, 138;
+    }
+    
+    .input-group.input-group-outline.custom-search.is-focused .form-label+.form-control {
+      border-color: #747b8a !important;
+      box-shadow: inset 1px 0 #747b8a, inset -1px 0 #747b8a, inset 0 -1px #747b8a;
+    }
+    
+    .input-group.input-group-outline.custom-search.is-focused .form-label,
+    .input-group.input-group-outline.custom-search.is-filled .form-label {
+      color: #747b8a;
+    }
+
+    .input-group.input-group-outline.custom-search.is-focused .form-label+.form-control {
+    border-color: #747b8a !important;
+    border-top-color: transparent !important; /* Make top border transparent */
+    box-shadow: inset 1px 0 #747b8a, inset -1px 0 #747b8a, inset 0 -1px #747b8a;
+    }
+    
+    .input-group.input-group-outline.custom-search.is-focused .form-label:before,
+    .input-group.input-group-outline.custom-search.is-focused .form-label:after,
+    .input-group.input-group-outline.custom-search.is-filled .form-label:before,
+    .input-group.input-group-outline.custom-search.is-filled .form-label:after {
+      border-top-color: #747b8a;
+      box-shadow: inset 0 1px #747b8a;
+    }
+
+    .bg-gradient-secondary {
+      background-image: linear-gradient(195deg, #8196ac 0%, #747b8a 100%);
+    }
+    
+    .btn-silver {
+      background-color: #747b8a;
+      color: #fff;
+    }
+    
+    .btn-silver:hover {
+      background-color: #868e96;
+      color: #fff;
+    }
+    
+    .modal-header.bg-gradient-secondary {
+      color: white;
+    }
+
     .search-container {
       position: relative;
+      display: flex;
+      justify-content: flex-end; /* Align to the right */
+      padding: 0 1rem; /* Adjust padding */
+    }
+
+    .search-container .input-group {
+      width: auto; /* Adjust width */
+      max-width: 200px; /* Limit maximum width */
     }
     
     .search-container i {
@@ -118,16 +175,15 @@ for (let i = 1; i <= totalPages; i++) {
     <div class="row mb-4">
       <div class="col-12">
         <div class="card">
-          <!-- Card Header with Title and Search -->
+          <!-- Card Header with Title -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
               <h6 class="text-white text-capitalize ps-3 mb-0">Products List</h6>
-              
-              <div class="pe-3 d-flex align-items-center">
-                <div class="input-group input-group-outline me-2 bg-white border-radius-md">
-                  <label class="form-label">Search products...</label>
-                  <input type="text" id="product-search" class="form-control">
-                </div>
+            </div>
+            <div class="search-container p-3">
+              <div class="input-group input-group-outline bg-white border-radius-md custom-search">
+                <label class="form-label">Search products...</label>
+                <input type="text" id="product-search" class="form-control">
               </div>
             </div>
           </div>
@@ -179,7 +235,7 @@ for (let i = 1; i <= totalPages; i++) {
                         </td>
                         <td class="text-center">
                           <button 
-                            class="btn btn-sm bg-gradient-primary edit-btn" 
+                            class="btn btn-sm btn-silver edit-btn" 
                             data-product-id={product.product_id} 
                             title="Edit Product">
                             <i class="material-symbols-rounded">edit</i>&nbsp;Edit
@@ -235,8 +291,8 @@ for (let i = 1; i <= totalPages; i++) {
   <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header bg-gradient-primary">
-          <h5 class="modal-title text-white" id="editProductModalLabel">Edit Product</h5>
+        <div class="modal-header bg-gradient-secondary">
+          <h6 class="modal-title text-white" id="editProductModalLabel">Edit Product</h6>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -308,7 +364,7 @@ for (let i = 1; i <= totalPages; i++) {
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn bg-gradient-primary" id="saveProductBtn">Save Changes</button>
+          <button type="button" class="btn btn-silver" id="saveProductBtn">Save Changes</button>
         </div>
       </div>
     </div>
@@ -326,7 +382,7 @@ for (let i = 1; i <= totalPages; i++) {
           <div id="alertMessage">Product updated successfully!</div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn bg-gradient-primary" data-bs-dismiss="modal">OK</button>
+          <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">OK</button>
         </div>
       </div>
     </div>

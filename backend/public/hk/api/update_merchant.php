@@ -13,50 +13,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// align with frontend code
+// For actual POST requests, continue with the existing code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // include database connection
-    include_once '../../config/conn.php';
+    // Include database connection
+    include_once '../../../config/conn.php';
     
     // get data from frontend
-    $data = json_decode(file_get_contents(filename: "php://input"));
+    $data = json_decode(file_get_contents("php://input"));
     $response = array();
     
     // validate the data
     if(
+        !empty($data->merchant_id) &&
         !empty($data->merchant_name) &&
         !empty($data->email) &&
-        isset($data->phone) &&
-        isset($data->address) &&
+        !empty($data->phone) &&
+        !empty($data->address) &&
         !empty($data->merchant_status)
     ) {
+        $merchant_id = htmlspecialchars(strip_tags($data->merchant_id));
         $merchant_name = htmlspecialchars(strip_tags($data->merchant_name));
         $email = htmlspecialchars(strip_tags($data->email));
-        $phone= htmlspecialchars(strip_tags($data->phone));
+        $phone = htmlspecialchars(strip_tags($data->phone));
         $address = htmlspecialchars(strip_tags($data->address));
         $merchant_status = htmlspecialchars(strip_tags($data->merchant_status));
     
-        $query = "INSERT INTO merchants 
-                (merchant_name, email, phone, address, merchant_status) 
-                VALUES (?, ?, ?, ?, ?)";
+        $query = "UPDATE merchants 
+              SET merchant_name = ?, 
+                  email = ?, 
+                  phone = ?, 
+                  address = ?, 
+                  merchant_status = ?, 
+                  updated_at = NOW() 
+              WHERE merchant_id = ?";
         
         $stmt = $conn->prepare($query);
-        $stmt->bind_param("sssss", 
+        $stmt->bind_param("sssssi", 
             $merchant_name, 
             $email, 
             $phone, 
             $address, 
-            $merchant_status
+            $merchant_status,
+            $merchant_id
         );
         if($stmt->execute()) {
             // success response
             $response["success"] = true;
-            $response["message"] = "merchant was added successfully.";
+            $response["message"] = "Merchant was updated successfully.";
             http_response_code(200);
         } else {
             // error in execution
             $response["success"] = false;
-            $response["message"] = "Unable to add merchant. " . $conn->error;
+            $response["message"] = "Unable to update merchant.";
             http_response_code(503);
         }
     
@@ -64,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // required data is missing
         $response["success"] = false;
-        $response["message"] = "Unable to add merchant. Data is incomplete.";
+        $response["message"] = "Unable to update merchant. Data is incomplete.";
         http_response_code(400);
     }   
     echo json_encode($response);
