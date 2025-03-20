@@ -1,19 +1,12 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  // Base directory where your Astro files live
   srcDir: './src',
-  
-  // Output directory for the build
   outDir: './dist',
-  
-  // Configure dev server
   server: {
     port: 3000,
-    host: true // Listen on all addresses, including network
+    host: true 
   },
-  
-  // Configure aliases for imports
   vite: {
     resolve: {
       alias: {
@@ -21,6 +14,17 @@ export default defineConfig({
         '@layouts': '/src/layouts',
         '@assets': '/assets'
       }
+    },
+    define: {
+      'import.meta.env.HK_PUBLIC_API_BASE': 
+        JSON.stringify(process.env.HK_PUBLIC_API_BASE || 'http://localhost/monitoring_system/backend/public/hk/api')
+    }
+  },
+  i18n: {
+    locales: ["en", "zh-hant", "zh-hans"],
+    defaultLocale: "en",
+    routing: {
+      prefixDefaultLocale: false // Makes /en/ URLs redirect to /
     }
   }
 });

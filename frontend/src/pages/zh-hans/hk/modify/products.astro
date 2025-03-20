@@ -1,5 +1,5 @@
 ---
-import DashboardLayout from "../../../layouts/dashboardLayout.astro";
+import DashboardLayout from "../../../../layouts/dashboardLayout.astro";
 
 // Fetch all products from API
 const apiBaseUrl = import.meta.env.HK_PUBLIC_API_BASE || '/api';
@@ -9,7 +9,7 @@ let latestUpdate = null;
 const region = "hk";
 
 // import { getRelativeLocaleUrl } from 'astro:i18n';
-import translations from '../../../i18n';
+import translations from '../../../../i18n';
 
 const { currentLocale } = Astro;
 

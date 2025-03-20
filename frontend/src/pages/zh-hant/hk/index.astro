@@ -1,10 +1,10 @@
 ---
-import DashboardLayout from "../../layouts/dashboardLayout.astro";
+import DashboardLayout from "../../../layouts/dashboardLayout.astro";
 
 const region = "hk";
 
 // import { getRelativeLocaleUrl } from 'astro:i18n';
-import translations from '../../i18n';
+import translations from '../../../i18n';
 
 const { currentLocale } = Astro;
 
@@ -97,7 +97,7 @@ for (let i = 1; i <= totalPages; i++) {
 
 <DashboardLayout 
   title="QNAP | Monitoring System"
-  pageTitle={t('priceMonitor.title', 'Price Monitor Dashboard')};
+  pageTitle={t('priceMonitor.title', 'Price Monitor Dashboard')}
   region={region}
   breadcrumbs={[
     { label: "Home", href: `/${region}/` },

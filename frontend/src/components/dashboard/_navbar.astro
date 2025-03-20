@@ -1,16 +1,50 @@
 ---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+// Create helper for translations
+import translations from '../../i18n';
+
+const { currentLocale, url } = Astro;
+const t = (key, defaultValue = '') => {
+  const keys = key.split('.');
+  let value = translations[currentLocale] || {};
+  
+  for (const k of keys) {
+    if (!value || !value[k]) return defaultValue || key;
+    value = value[k];
+  }
+  
+  return value || defaultValue || key;
+};
+
 interface Props {
   pageTitle?: string;
   breadcrumbs?: Array<{label: string, href?: string}>;
 }
 
 const { 
-  pageTitle = "Price Records",
+  pageTitle = t("dashboard.title", "Price Records"),
   breadcrumbs = [
-    { label: "Pages" },
+    { label: t("common.home", "Pages") },
     { label: pageTitle }
   ]
 } = Astro.props;
+
+// Extract current path, removing any locale prefix if present
+let currentPath = url.pathname;
+
+// Remove the locale prefix if it exists
+// This matches /en/, /zh-hant/, or /zh-hans/ at the beginning of the path
+const localePattern = new RegExp(`^/(${["en", "zh-hant", "zh-hans"].join("|")})/`);
+currentPath = currentPath.replace(localePattern, '');
+
+// If path is empty after removing locale, set to root
+if (!currentPath) currentPath = '';
+
+// Get URLs for language switching
+const enUrl = getRelativeLocaleUrl("en", currentPath);
+const zhHantUrl = getRelativeLocaleUrl("zh-hant", currentPath);
+const zhHansUrl = getRelativeLocaleUrl("zh-hans", currentPath);
 ---
 
 <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl navbar-with-border" id="navbarBlur" data-scroll="true">
@@ -65,12 +99,34 @@ const {
           </a>
         </li>
         
-
-        <!-- User account icon -->
-        <li class="nav-item d-flex align-items-center">
-          <a href="#" class="nav-link text-body font-weight-bold px-0">
+        <!-- Select language dropdown -->
+        <li class="nav-item dropdown d-flex align-items-center">
+          <a href="javascript:;" class="nav-link text-body font-weight-bold px-0" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="material-symbols-rounded me-1">language</i>
           </a>
+          <ul class="dropdown-menu dropdown-menu-end px-2 py-1" aria-labelledby="languageDropdown">
+            <li>
+              <a class="dropdown-item border-radius-md language-option" href={enUrl}>
+                <div class="d-flex align-items-center py-1">
+                  <div>English</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item border-radius-md language-option" href={zhHantUrl}>
+                <div class="d-flex align-items-center py-1">
+                  <div>繁體中文</div>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item border-radius-md language-option" href={zhHansUrl}>
+                <div class="d-flex align-items-center py-1">
+                  <div>简体中文</div>
+                </div>
+              </a>
+            </li>
+          </ul>
         </li>
 
       </ul>
@@ -112,7 +168,6 @@ const {
 </script>
 
 <style>
-  /* Add permanent border to navbar */
   .navbar-with-border {
     box-shadow: 0 2px 3px -1px rgba(0, 0, 0, 0.06), 0 1px 2px 0px rgba(0, 0, 0, 0.03), 0 1px 1px 0px rgba(0, 0, 0, 0.02) !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);

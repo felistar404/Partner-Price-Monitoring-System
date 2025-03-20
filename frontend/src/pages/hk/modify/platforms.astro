@@ -1,9 +1,9 @@
 ---
 import DashboardLayout from "../../../layouts/dashboardLayout.astro";
 
-// Fetch all products from API
+// Fetch all platforms from API
 const apiBaseUrl = import.meta.env.HK_PUBLIC_API_BASE || '/api';
-let products = [];
+let platforms = [];
 let latestUpdate = null;
 
 const region = "hk";
@@ -26,9 +26,9 @@ const t = (key, defaultValue = '') => {
 };
 
 try {
-  const response = await fetch(`${apiBaseUrl}/get_products.php`);
+  const response = await fetch(`${apiBaseUrl}/get_platforms.php`);
   const data = await response.json();
-  products = data.records || [];
+  platforms = data.records || [];
   
   // Fetch the latest update date
   const latestDateResponse = await fetch(`${apiBaseUrl}/get_latest_date.php`);
@@ -40,7 +40,7 @@ try {
 
 // Calculate total pages and set max elements per page for table
 const itemsPerPage = 10;
-const totalPages = Math.ceil(products.length / itemsPerPage);
+const totalPages = Math.ceil(platforms.length / itemsPerPage);
 
 const paginationArray = [];
 for (let i = 1; i <= totalPages; i++) {
@@ -49,17 +49,17 @@ for (let i = 1; i <= totalPages; i++) {
 ---
 
 <DashboardLayout 
-  title="Products | QNAP Monitoring System"
-  pageTitle={t('products.pageTitle', 'Modify Products')} 
-  activePage="modify-products"
+  title="Platforms | QNAP Monitoring System"
+  pageTitle={t('platforms.pageTitle', 'Modify Platforms')} 
+  activePage="modify-platforms"
   region={region}
   breadcrumbs={[
     { label: "Home", href: `/${region}/` },
     { label: "Modify Items" },
-    { label: "Products" }
+    { label: "Platforms" }
   ]}
 >
-  <!-- Customization Stylesheet for products.astro <----- Not recommend to modify any of these code. -->
+  <!-- Customization Stylesheet for platforms.astro <----- Not recommend to modify any of these code. -->
   <style>
     .input-group.input-group-outline.custom-search {
       --bs-primary: #747b8a;
@@ -77,9 +77,9 @@ for (let i = 1; i <= totalPages; i++) {
     }
 
     .input-group.input-group-outline.custom-search.is-focused .form-label+.form-control {
-    border-color: #747b8a !important;
-    border-top-color: transparent !important; /* Make top border transparent */
-    box-shadow: inset 1px 0 #747b8a, inset -1px 0 #747b8a, inset 0 -1px #747b8a;
+      border-color: #747b8a !important;
+      border-top-color: transparent !important;
+      box-shadow: inset 1px 0 #747b8a, inset -1px 0 #747b8a, inset 0 -1px #747b8a;
     }
     
     .input-group.input-group-outline.custom-search.is-focused .form-label:before,
@@ -209,12 +209,12 @@ for (let i = 1; i <= totalPages; i++) {
           <!-- Card Header with Title -->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-              <h6 class="text-white text-capitalize ps-3 mb-0">{t('products.list', 'Products List')}</h6>
+              <h6 class="text-white text-capitalize ps-3 mb-0">{t('platforms.list', 'Platforms List')}</h6>
             </div>
             <div class="search-container p-3">
               <div class="input-group input-group-outline bg-white border-radius-md custom-search">
-                <label class="form-label">{t('products.search', 'Search product...')}</label>
-                <input type="text" id="product-search" class="form-control">
+                <label class="form-label">{t('platforms.search', 'Search platform...')}</label>
+                <input type="text" id="platform-search" class="form-control">
               </div>
             </div>
           </div>
@@ -222,53 +222,49 @@ for (let i = 1; i <= totalPages; i++) {
           <!-- Card Body with Table -->
           <div class="card-body px-0 pb-2">
             <div class="table-responsive p-0">
-              <table class="table align-items-center mb-0" id="products-table">
+              <table class="table align-items-center mb-0" id="platforms-table">
                 <thead>
                   <tr>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{t('products.productId', 'ID')}</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">{t('products.productName', 'Product Name')}</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">{t('products.productModel', 'Product Model')}</th>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{t('products.referencePrice', 'Reference Price')}</th>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{t('products.minPrice', 'Min. Acceptable Price')}</th>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{t('products.maxPrice', 'Max. Acceptable price')}</th>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{t('products.active', 'Active')}</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{t('platforms.platformId', 'ID')}</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">{t('platforms.platformName', 'Platform Name')}</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">{t('platforms.url', 'URL')}</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">{t('platforms.productUrl', 'Product URL')}</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">{t('platforms.merchantUrl', 'Merchant URL')}</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{t('platforms.status', 'Status')}</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{t('general.actions', 'Actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.length > 0 ? (
-                    products.map((product: any, index: number) => (
-                      <tr class="table-row" data-page={Math.floor(index / itemsPerPage) + 1} data-product={JSON.stringify(product)}>
+                  {platforms.length > 0 ? (
+                    platforms.map((platform: any, index: number) => (
+                      <tr class="table-row" data-page={Math.floor(index / itemsPerPage) + 1} data-platform={JSON.stringify(platform)}>
                         <td>
                           <div class="d-flex px-3 py-1">
-                            <p class="text-xs font-weight-bold mb-0">{product.product_id}</p>
+                            <p class="text-xs font-weight-bold mb-0">{platform.platform_id}</p>
                           </div>
                         </td>
                         <td>
-                          <p class="text-xs font-weight-bold mb-0">{product.product_name}</p>
+                          <p class="text-xs font-weight-bold mb-0">{platform.platform_name}</p>
                         </td>
                         <td>
-                          <p class="text-xs font-weight-bold mb-0">{product.product_model}</p>
+                          <p class="text-xs font-weight-bold mb-0">{platform.platform_url}</p>
+                        </td>
+                        <td>
+                          <p class="text-xs font-weight-bold mb-0">{platform.platform_url_price}</p>
+                        </td>
+                        <td>
+                          <p class="text-xs font-weight-bold mb-0">{platform.platform_url_merchant}</p>
                         </td>
                         <td class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">${product.reference_price}</p>
-                        </td>
-                        <td class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">${product.min_acceptable_price}</p>
-                        </td>
-                        <td class="text-center">
-                          <p class="text-xs font-weight-bold mb-0">${product.max_acceptable_price}</p>
-                        </td>
-                        <td class="text-center">
-                          <span class={`badge badge-sm ${product.product_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger'}`}>
-                            {product.product_status}
+                          <span class={`badge badge-sm ${platform.platform_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger'}`}>
+                            {platform.platform_status}
                           </span>
                         </td>
                         <td class="align-middle text-center">
                           <button 
                             class="btn btn-link mb-0 btn-sm btn-silver edit-btn" 
-                            data-product-id={product.product_id} 
-                            title="Edit Product">
+                            data-platform-id={platform.platform_id} 
+                            title="Edit Platform">
                             <i class="material-symbols-rounded">edit</i>&nbsp;{t('general.edit', 'Edit')}
                           </button>
                         </td>
@@ -276,10 +272,10 @@ for (let i = 1; i <= totalPages; i++) {
                     ))
                   ) : (
                     <tr>
-                      <td colspan="8" class="text-center py-4">
+                      <td colspan="7" class="text-center py-4">
                         <div class="alert alert-info mb-0">
-                          <h4><i class="material-symbols-rounded">info</i> {t('products.noResultsFound', 'No products found')}</h4>
-                          <p>{t('products.noResultsInDB', 'There are no products available in the database.')}</p>
+                          <h4><i class="material-symbols-rounded">info</i>{t('platforms.noResultsFoundTitle', ' No platforms found')}</h4>
+                          <p>{t('platforms.noResultsInDB', 'There are no platforms available in the database.')}</p>
                         </div>
                       </td>
                     </tr>
@@ -296,7 +292,6 @@ for (let i = 1; i <= totalPages; i++) {
                 <li class="page-item page-prev disabled">
                   <a class="page-link" href="#" tabindex="-1">
                     <i class="material-symbols-rounded">chevron_left</i>
-                    <!-- <span class="sr-only">Previous</span> -->
                   </a>
                 </li>
                 {paginationArray.map(pageNum => (
@@ -307,7 +302,6 @@ for (let i = 1; i <= totalPages; i++) {
                 <li class={`page-item page-next ${totalPages <= 1 ? 'disabled' : ''}`}>
                   <a class="page-link" href="#">
                     <i class="material-symbols-rounded">chevron_right</i>
-                    <!-- <span class="sr-only">Next</span> -->
                   </a>
                 </li>
               </ul>
@@ -318,84 +312,69 @@ for (let i = 1; i <= totalPages; i++) {
     </div>
   </div>
   
-  <!-- Edit Product Modal -->
-  <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel">
+  <!-- Edit Platform Modal -->
+  <div class="modal fade" id="editPlatformModal" tabindex="-1" aria-labelledby="editPlatformModalLabel">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header bg-gradient-secondary">
-          <h6 class="modal-title text-white" id="editProductModalLabel">{t('products.editProduct', 'Edit Product')}</h6>
+          <h6 class="modal-title text-white" id="editPlatformModalLabel">{t('platforms.editPlatform', 'Edit Platform')}</h6>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="editProductForm">
-            <input type="hidden" id="product_id" name="product_id">
+          <form id="editPlatformForm">
+            <input type="hidden" id="platform_id" name="platform_id">
             
             <div class="row mb-3">
               <div class="col-md-6">
                 <div class="input-group input-group-static mb-3">
-                  <label for="product_name" class="ms-0">{t('products.ProductName', 'Product Name')}</label>
-                  <input type="text" class="form-control" id="product_name" name="product_name" required>
+                  <label for="platform_name" class="ms-0">{t('platforms.platformName', 'Platform Name')}</label>
+                  <input type="text" class="form-control" id="platform_name" name="platform_name" required>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="input-group input-group-static mb-3">
-                  <label for="product_model" class="ms-0">{t('products.ProductModel', 'Product Model')}</label>
-                  <input type="text" class="form-control" id="product_model" name="product_model" required>
-                </div>
-              </div>
-            </div>
-            
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <div class="input-group input-group-static mb-3">
-                  <label for="reference_price" class="ms-0">{t('products.referencePrice', 'Reference Price')}</label>
-                  <input type="number" class="form-control" id="reference_price" name="reference_price" step="0.01" required>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="input-group input-group-static mb-3">
-                  <label for="min_acceptable_price" class="ms-0">{t('products.minPrice', 'Min. Acceptable Price')}</label>
-                  <input type="number" class="form-control" id="min_acceptable_price" name="min_acceptable_price" step="0.01" required>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="input-group input-group-static mb-3">
-                  <label for="max_acceptable_price" class="ms-0">{t('products.maxPrice', 'Max. Acceptable Price')}</label>
-                  <input type="number" class="form-control" id="max_acceptable_price" name="max_acceptable_price" step="0.01" required>
-                </div>
-              </div>
-            </div>
-            
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <div class="input-group input-group-static mb-3">
-                  <label for="product_status" class="ms-0">{t('products.status', 'Status')}</label>
-                  <select class="form-control" id="product_status" name="product_status" required>
-                    <option value="active">{t('products.active', 'Active')}</option>
-                    <option value="inactive">{t('products.inactive', 'Inactive')}</option>
+                  <label for="platform_status" class="ms-0">{t('platforms.status', 'Status')}</label>
+                  <select class="form-control" id="platform_status" name="platform_status" required>
+                    <option value="active">{t('platforms.active', 'Active')}</option>
+                    <option value="inactive">{t('platforms.inactive', 'Inactive')}</option>
                   </select>
                 </div>
               </div>
             </div>
             
             <div class="input-group input-group-static mb-3">
-              <label for="product_description" class="ms-0">{t('products.description', 'Description')}</label>
-              <textarea class="form-control" id="product_description" name="product_description" rows="3"></textarea>
+              <label for="platform_url" class="ms-0">{t('platforms.url', 'Platform URL')}</label>
+              <input type="text" class="form-control" id="platform_url" name="platform_url" required>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <div class="input-group input-group-static mb-3">
+                  <label for="platform_url_price" class="ms-0">{t('platforms.productUrl', 'Product URL')}</label>
+                  <input type="text" class="form-control" id="platform_url_price" name="platform_url_price" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group input-group-static mb-3">
+                  <label for="platform_url_merchant" class="ms-0">{t('platforms.merchantUrl', 'Merchant URL')}</label>
+                  <input type="text" class="form-control" id="platform_url_merchant" name="platform_url_merchant" required>
+                </div>
+              </div>
             </div>
             
             <div class="row text-sm text-muted">
               <div class="col-md-6">
-                <p class="mb-0">{t('products.createdAt', 'Created: ')}<span id="created_at"></span></p>
+                <p class="mb-0">{t('platforms.createdAt', 'Created: ')}<span id="created_at"></span></p>
               </div>
               <div class="col-md-6">
-                <p class="mb-0">{t('products.updatedAt', 'Last Updated: ')}<span id="updated_at"></span></p>
+                <p class="mb-0">{t('platforms.updatedAt', 'Last Updated: ')}<span id="updated_at"></span></p>
               </div>
             </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{t('general.cancel', 'Cancel')}</button>
-          <button type="button" class="btn btn-silver" id="saveProductBtn">{t('general.save', 'Save Changes')}</button>
+          <button type="button" class="btn btn-silver" id="savePlatformBtn">{t('general.save', 'Save Changes')}</button>
         </div>
       </div>
     </div>
@@ -406,14 +385,14 @@ for (let i = 1; i <= totalPages; i++) {
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="alertTitle">Success</h5>
+          <h5 class="modal-title" id="alertTitle">{t('general.success', 'Success')}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div id="alertMessage">Product updated successfully!</div>
+          <div id="alertMessage">{t('platforms.updateSuccess', 'Platform updated successfully!')}</div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">OK</button>
+          <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">{t('general.ok', 'OK')}</button>
         </div>
       </div>
     </div>
@@ -422,7 +401,6 @@ for (let i = 1; i <= totalPages; i++) {
   <script is:inline define:vars={{ totalPages, itemsPerPage, apiBaseUrl }}>
     document.addEventListener('DOMContentLoaded', function() {
       let currentPage = 1;
-      
       if (document.querySelectorAll('.input-group.input-group-outline').length > 0) {
         const materialInputs = document.querySelectorAll('.input-group.input-group-outline .form-control');
         materialInputs.forEach(input => {
@@ -444,11 +422,11 @@ for (let i = 1; i <= totalPages; i++) {
       
       // Pagination functionality
       function showPage(page) {
-        document.querySelectorAll('#products-table .table-row').forEach(row => {
+        document.querySelectorAll('#platforms-table .table-row').forEach(row => {
           row.style.display = 'none';
         });
 
-        document.querySelectorAll(`#products-table .table-row[data-page="${page}"]`).forEach(row => {
+        document.querySelectorAll(`#platforms-table .table-row[data-page="${page}"]`).forEach(row => {
           row.style.display = '';
         });
 
@@ -487,17 +465,17 @@ for (let i = 1; i <= totalPages; i++) {
         }
       });
       
-      // Product search functionality
-      const productSearch = document.getElementById('product-search');
-      productSearch?.addEventListener('input', function() {
+      // Platform search functionality
+      const platformSearch = document.getElementById('platform-search');
+      platformSearch?.addEventListener('input', function() {
         const searchText = this.value.toLowerCase();
         let visibleItems = 0;
         
-        document.querySelectorAll('#products-table .table-row').forEach(row => {
-          const productName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-          const productModel = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+        document.querySelectorAll('#platforms-table .table-row').forEach(row => {
+          const platformName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+          const platformUrl = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
           
-          if (productName.includes(searchText) || productModel.includes(searchText)) {
+          if (platformName.includes(searchText) || platformUrl.includes(searchText)) {
             row.style.display = '';
             visibleItems++;
           } else {
@@ -505,15 +483,15 @@ for (let i = 1; i <= totalPages; i++) {
           }
         });
         
-        // Show "no results" message if no matching products
+        // Show "no results" message if no matching platforms
         if (visibleItems === 0) {
           const noResultsRow = document.createElement('tr');
           noResultsRow.id = 'no-results-row';
-          noResultsRow.innerHTML = '<td colspan="8" class="text-center py-4"><div class="alert alert-info mb-0"><h4><i class="material-symbols-rounded">search_off</i> No results found</h4><p>No products match your search criteria.</p></div></td>';
+          noResultsRow.innerHTML = '<td colspan="7" class="text-center py-4"><div class="alert alert-info mb-0"><h4><i class="material-symbols-rounded">search_off</i> No results found</h4><p>No platforms match your search criteria.</p></div></td>';
           
           const existingNoResults = document.getElementById('no-results-row');
           if (!existingNoResults) {
-            document.querySelector('#products-table tbody').appendChild(noResultsRow);
+            document.querySelector('#platforms-table tbody').appendChild(noResultsRow);
           }
         } else {
           const existingNoResults = document.getElementById('no-results-row');
@@ -526,22 +504,20 @@ for (let i = 1; i <= totalPages; i++) {
       // Edit button click handler
       document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', function() {
-          const productRow = this.closest('tr');
-          const productData = JSON.parse(productRow.dataset.product);
+          const platformRow = this.closest('tr');
+          const platformData = JSON.parse(platformRow.dataset.platform);
           
-          // Fill form with product data
-          document.getElementById('product_id').value = productData.product_id;
-          document.getElementById('product_name').value = productData.product_name;
-          document.getElementById('product_model').value = productData.product_model;
-          document.getElementById('reference_price').value = productData.reference_price;
-          document.getElementById('min_acceptable_price').value = productData.min_acceptable_price;
-          document.getElementById('max_acceptable_price').value = productData.max_acceptable_price;
-          document.getElementById('product_status').value = productData.product_status;
-          document.getElementById('product_description').value = productData.product_description || '';
-          document.getElementById('created_at').textContent = productData.created_at || 'N/A';
-          document.getElementById('updated_at').textContent = productData.updated_at || 'N/A';
+          // Fill form with platform data
+          document.getElementById('platform_id').value = platformData.platform_id;
+          document.getElementById('platform_name').value = platformData.platform_name;
+          document.getElementById('platform_url').value = platformData.platform_url;
+          document.getElementById('platform_url_price').value = platformData.platform_url_price;
+          document.getElementById('platform_url_merchant').value = platformData.platform_url_merchant;
+          document.getElementById('platform_status').value = platformData.platform_status;
+          document.getElementById('created_at').textContent = platformData.created_at || 'N/A';
+          document.getElementById('updated_at').textContent = platformData.updated_at || 'N/A';
           
-          document.querySelectorAll('#editProductForm .input-group-static').forEach(group => {
+          document.querySelectorAll('#editPlatformForm .input-group-static').forEach(group => {
             const input = group.querySelector('input, select, textarea');
             if (input && input.value !== '') {
               group.classList.add('focused');
@@ -549,56 +525,38 @@ for (let i = 1; i <= totalPages; i++) {
           });
           
           // Show modal
-          const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+          const editModal = new bootstrap.Modal(document.getElementById('editPlatformModal'));
           editModal.show();
         });
       });
       
       // Save button click handler
-      document.getElementById('saveProductBtn')?.addEventListener('click', async function() {
-        const form = document.getElementById('editProductForm');
+      document.getElementById('savePlatformBtn')?.addEventListener('click', async function() {
+        const form = document.getElementById('editPlatformForm');
         
         // Basic form validation & fill the form data
         if (!form.checkValidity()) {
           form.reportValidity();
           return;
         }
-        
-        // Price validation for user input <----- before db insertion
-        const refPrice = parseFloat(document.getElementById('reference_price').value);
-        const minPrice = parseFloat(document.getElementById('min_acceptable_price').value);
-        const maxPrice = parseFloat(document.getElementById('max_acceptable_price').value);
-        if (minPrice > refPrice) {
-          showAlert('Validation Error', 'Minimum price cannot be greater than reference price', 'error');
-          document.getElementById('min_acceptable_price').classList.add('is-invalid');
-          return;
-        }
-        if (maxPrice < refPrice) {
-          showAlert('Validation Error', 'Maximum price cannot be less than reference price', 'error');
-          document.getElementById('max_acceptable_price').classList.add('is-invalid');
-          return;
-        }
-
         const formData = {
-          product_id: document.getElementById('product_id').value,
-          product_name: document.getElementById('product_name').value,
-          product_model: document.getElementById('product_model').value,
-          reference_price: document.getElementById('reference_price').value,
-          min_acceptable_price: document.getElementById('min_acceptable_price').value,
-          max_acceptable_price: document.getElementById('max_acceptable_price').value,
-          product_status: document.getElementById('product_status').value,
-          product_description: document.getElementById('product_description').value || ''
+          platform_id: document.getElementById('platform_id').value,
+          platform_name: document.getElementById('platform_name').value,
+          platform_url: document.getElementById('platform_url').value,
+          platform_url_price: document.getElementById('platform_url_price').value,
+          platform_url_merchant: document.getElementById('platform_url_merchant').value,
+          platform_status: document.getElementById('platform_status').value
         };
         
         try {
           // Show loading state
-          const saveBtn = document.getElementById('saveProductBtn');
+          const saveBtn = document.getElementById('savePlatformBtn');
           const originalBtnText = saveBtn.innerHTML;
           saveBtn.disabled = true;
           saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
           
           // Send API request to backend
-          const response = await fetch(`${apiBaseUrl}/update_product.php`, {
+          const response = await fetch(`${apiBaseUrl}/update_platform.php`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -611,19 +569,18 @@ for (let i = 1; i <= totalPages; i++) {
           // Reset button state and close modal
           saveBtn.disabled = false;
           saveBtn.innerHTML = originalBtnText;
-          bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+          bootstrap.Modal.getInstance(document.getElementById('editPlatformModal')).hide();
           
           // Success & failure handling
           if (result.success) {
-            showAlert('Success', 'Product updated successfully!', 'success');
-            const updatedRow = document.querySelector(`.edit-btn[data-product-id="${formData.product_id}"]`).closest('tr');
+            showAlert('Success', 'Platform updated successfully!', 'success');
+            const updatedRow = document.querySelector(`.edit-btn[data-platform-id="${formData.platform_id}"]`).closest('tr');
             if (updatedRow) {
               const cells = updatedRow.querySelectorAll('td');
-              cells[1].querySelector('p').textContent = formData.product_name;
-              cells[2].querySelector('p').textContent = formData.product_model;
-              cells[3].querySelector('p').textContent = `$${formData.reference_price}`;
-              cells[4].querySelector('p').textContent = `$${formData.min_acceptable_price}`;
-              cells[5].querySelector('p').textContent = `$${formData.max_acceptable_price}`;
+              cells[1].querySelector('p').textContent = formData.platform_name;
+              cells[2].querySelector('p').textContent = formData.platform_url;
+              cells[3].querySelector('p').textContent = formData.platform_url_price;
+              cells[4].querySelector('p').textContent = formData.platform_url_merchant;
               
               const existingBadge = cells[6].querySelector('.badge');
               if (existingBadge) {
@@ -633,32 +590,30 @@ for (let i = 1; i <= totalPages; i++) {
                 newBadge.textContent = formData.product_status;
                 existingBadge.replaceWith(newBadge);
               }
-
-              const productData = JSON.parse(updatedRow.dataset.product);
-              productData.product_name = formData.product_name;
-              productData.product_model = formData.product_model;
-              productData.reference_price = formData.reference_price;
-              productData.min_acceptable_price = formData.min_acceptable_price;
-              productData.max_acceptable_price = formData.max_acceptable_price;
-              productData.product_status = formData.product_status;
-              productData.product_description = formData.product_description;
-              productData.updated_at = new Date().toISOString().replace('T', ' ').substr(0, 19);
-              updatedRow.dataset.product = JSON.stringify(productData);
               
-              // Highlight functionality (After update)
+              const platformData = JSON.parse(updatedRow.dataset.platform);
+              platformData.platform_name = formData.platform_name;
+              platformData.platform_url = formData.platform_url;
+              platformData.platform_url_price = formData.platform_url_price;
+              platformData.platform_url_merchant = formData.platform_url_merchant;
+              platformData.platform_status = formData.platform_status;
+              platformData.updated_at = new Date().toISOString().replace('T', ' ').substr(0, 19);
+              updatedRow.dataset.platform = JSON.stringify(platformData);
+              
+              // Highlight updated row (After update)
               updatedRow.classList.add('row-updated');
               setTimeout(() => {
                 updatedRow.classList.remove('row-updated');
               }, 4000);
             }
           } else {
-            showAlert('Error', result.message || 'Failed to update product. Please try again.', 'error');
+            showAlert('Error', result.message || 'Failed to update platform. Please try again.', 'error');
           }
         } catch (error) {
-          console.error('Error updating product:', error);
-          showAlert('Error', 'An error occurred while updating the product. Please try again.', 'error');
-          document.getElementById('saveProductBtn').disabled = false;
-          document.getElementById('saveProductBtn').innerHTML = originalBtnText;
+          console.error('Error updating platform:', error);
+          showAlert('Error', 'An error occurred while updating the platform. Please try again.', 'error');
+          document.getElementById('savePlatformBtn').disabled = false;
+          document.getElementById('savePlatformBtn').innerHTML = originalBtnText;
         }
       });
       function showAlert(title, message, type) {

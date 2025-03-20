@@ -7,6 +7,8 @@ backend/test/
 backend/reference/
 backend/tmp/
 backend/logs/
+backend/public/hk/api/pricebook.php
+
 
 #-----------------#
 #     Frontend    #
