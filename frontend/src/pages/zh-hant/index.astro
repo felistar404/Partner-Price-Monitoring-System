@@ -17,6 +17,10 @@ const t = (key, defaultValue = '') => {
   return value || defaultValue || key;
 };
 
+const hkUrl = getRelativeLocaleUrl(currentLocale, "hk");
+const twUrl = getRelativeLocaleUrl(currentLocale, "tw");
+const cnUrl = getRelativeLocaleUrl(currentLocale, "cn");
+
 ---
 
 <!DOCTYPE html>
@@ -88,16 +92,16 @@ const t = (key, defaultValue = '') => {
   <div class="container">
     <h1>{t('regions.title', 'Select a Country or Region')}</h1>
     <div class="grid">
-      <a href="/hk" class="country">
-        <img src="../assets/img/countries/Flag_of_Hong_Kong.svg" alt="Hong Kong">
+      <a href={hkUrl} class="country">
+        <img src="/assets/img/countries/Flag_of_Hong_Kong.svg" alt="Hong Kong">
         <span>{t('regions.hk', 'Hong Kong')}</span>
       </a>
-      <a href="/tw" class="country">
-        <img src="../assets/img/countries/Flag_of_the_Republic_of_China.svg" alt="Taiwan">
+      <a href={twUrl} class="country">
+        <img src="/assets/img/countries/Flag_of_the_Republic_of_China.svg" alt="Taiwan">
         <span>{t('regions.tw', 'Taiwan')}</span>
       </a>
-      <a href="/cn" class="country">
-        <img src="../assets/img/countries/Flag_of_the_People's_Republic_of_China.svg.png" alt="China">
+      <a href={cnUrl} class="country">
+        <img src="/assets/img/countries/Flag_of_the_People's_Republic_of_China.svg.png" alt="China">
         <span>{t('regions.cn', 'China')}</span>
       </a>
     </div>

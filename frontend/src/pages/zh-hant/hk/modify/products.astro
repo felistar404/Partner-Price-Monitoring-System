@@ -1,11 +1,6 @@
 ---
 import DashboardLayout from "../../../../layouts/dashboardLayout.astro";
 
-// Fetch all products from API
-const apiBaseUrl = import.meta.env.HK_PUBLIC_API_BASE || '/api';
-let products = [];
-let latestUpdate = null;
-
 const region = "hk";
 
 // import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -13,22 +8,21 @@ import translations from '../../../../i18n';
 
 const { currentLocale } = Astro;
 
-const t = function(key, defaultValue = '') {
-  if (!key) return defaultValue || '';
-  
+const t = (key, defaultValue = '') => {
   const keys = key.split('.');
   let value = translations[currentLocale] || {};
   
-  for (let i = 0; i < keys.length; i++) {
-    const k = keys[i];
-    if (!value || typeof value[k] === 'undefined') {
-      return defaultValue || key;
-    }
+  for (const k of keys) {
+    if (!value || !value[k]) return defaultValue || key;
     value = value[k];
   }
   
   return value || defaultValue || key;
 };
+
+const apiBaseUrl = import.meta.env.HK_PUBLIC_API_BASE || '/api';
+let products = [];
+let latestUpdate = null;
 
 try {
   const response = await fetch(`${apiBaseUrl}/get_products.php`);
@@ -338,13 +332,13 @@ for (let i = 1; i <= totalPages; i++) {
             <div class="row mb-3">
               <div class="col-md-6">
                 <div class="input-group input-group-static mb-3">
-                  <label for="product_name" class="ms-0">{t('products.ProductName', 'Product Name')}</label>
+                  <label for="product_name" class="ms-0">{t('products.productName', 'Product Name')}</label>
                   <input type="text" class="form-control" id="product_name" name="product_name" required>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="input-group input-group-static mb-3">
-                  <label for="product_model" class="ms-0">{t('products.ProductModel', 'Product Model')}</label>
+                  <label for="product_model" class="ms-0">{t('products.productModel', 'Product Model')}</label>
                   <input type="text" class="form-control" id="product_model" name="product_model" required>
                 </div>
               </div>

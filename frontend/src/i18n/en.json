@@ -155,5 +155,18 @@
     "errors": {
       "apiError": "Error occurred while fetching data from API",
       "generalError": "An error occurred. Please try again."
+    },
+    "sidebar": {
+      "mainPage": "Main Page",
+      "modifyItems": "Modify Items",
+      "documentations": "Documentations",
+      "priceRecords": "Price Records",
+      "products": "Products",
+      "merchants": "Merchants",
+      "platforms": "Platforms",
+      "userManual": "User Manual",
+      "developerManual": "Developer Manual",
+      "regionSelection": "Region Selection",
+      "brandName": "Monitoring System"
     }
   }

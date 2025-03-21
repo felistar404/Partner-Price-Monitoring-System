@@ -97,7 +97,7 @@ for (let i = 1; i <= totalPages; i++) {
 
 <DashboardLayout 
   title="QNAP | Monitoring System"
-  pageTitle={t('priceMonitor.title', 'Price Monitor Dashboard')};
+  pageTitle={t('priceMonitor.title', 'Price Monitor Dashboard')}
   region={region}
   breadcrumbs={[
     { label: "Home", href: `/${region}/` },
@@ -250,10 +250,10 @@ for (let i = 1; i <= totalPages; i++) {
       
       <div class="btn-toolbar justify-content-center">
         <div class="ms-2">
-          <button id="export-btn" class="btn btn-sm btn-outline-success" title="Export to Excel">
+          <button id="export-btn" class="btn btn-sm btn-outline-secondary" title="Export to Excel">
             <i class="material-symbols-rounded">download</i> {t('general.export', 'Export')}
           </button>
-          <button id="refresh-btn" class="btn btn-sm btn-outline-primary" title="Refresh data">
+          <button id="refresh-btn" class="btn btn-sm btn-outline-secondary" title="Refresh data">
             <i class="material-symbols-rounded">refresh</i> {t('general.refresh', 'Refresh')}
           </button>
         </div>
@@ -413,7 +413,6 @@ for (let i = 1; i <= totalPages; i++) {
             </div>
           </div>
           
-          <!-- Card Footer with Pagination -->
           {totalPages > 1 && (
             <div class="card-footer d-flex justify-content-center">
               <nav aria-label="Page navigation">
@@ -462,9 +461,76 @@ for (let i = 1; i <= totalPages; i++) {
     </div>
   </div>
 
-  <script is:inline define:vars={{ merchantList, records, totalPages }}>
+  <script is:inline define:vars={{ merchantList, records, totalPages, translations, currentLocale }}>
     document.addEventListener('DOMContentLoaded', function() {
-      // Toggle row expansion
+      // Client-side translation function
+      function t(key, defaultValue = '') {
+        const keys = key.split('.');
+        let value = translations[currentLocale] || {};
+        
+        for (const k of keys) {
+          if (!value || !value[k]) return defaultValue || key;
+          value = value[k];
+        }
+        
+        return value || defaultValue || key;
+      }
+      
+      // Copy message functionality
+      document.querySelectorAll('.copy-message-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const merchantId = this.getAttribute('data-merchant-id');
+          const tooltip = this.querySelector('.tooltip-text');
+          
+          // Find merchant data (fixed approach)
+          const merchantData = merchantList.find(m => m.merchant_id == merchantId);
+          
+          if (merchantData) {
+            // Create message text
+            let messageText = `${merchantData.merchant_name},\n\n`;
+            messageText += t('messages.intro', 'We have noticed some pricing issues with our products on your platform:');
+            
+            // Add each problematic product
+            merchantData.records.forEach(record => {
+              if (record.price_status !== 'acceptable') {
+                // Determine issue message
+                let issueMessage = '';
+                if (record.price_status === 'overpriced') {
+                  issueMessage = t('messages.overpriced', 'is priced above our recommended retail price');
+                } else if (record.price_status === 'underpriced') {
+                  issueMessage = t('messages.underpriced', 'is priced below our recommended retail price');
+                } else if (record.price_status === 'missing') {
+                  issueMessage = t('messages.missing', 'is missing pricing information');
+                }
+                
+                messageText += `• ${record.product_name} (${record.product_model}) on ${record.platform_name} ${issueMessage}.\n`;
+              }
+            });
+            
+            messageText += `\n${t('messages.outro1', 'Please update your prices to align with our guidelines.')}`;
+            messageText += `\n\n${t('messages.outro2', 'Thank you for your cooperation.')}`;
+            messageText += `\n\n${t('messages.outro3', 'Best regards,')}`;
+            
+            // Use try-catch to handle potential clipboard errors
+            try {
+              navigator.clipboard.writeText(messageText).then(() => {
+                tooltip.classList.add('show');
+                setTimeout(() => {
+                  tooltip.classList.remove('show');
+                }, 2000);
+              }).catch(err => {
+                console.error('Clipboard write failed:', err);
+                alert('Could not copy to clipboard. Please check browser permissions.');
+              });
+            } catch (err) {
+              console.error('Clipboard API error:', err);
+              alert('Your browser does not support clipboard access. Please use a modern browser.');
+            }
+          }
+        });
+      });
+      
       document.querySelectorAll('.expand-toggle-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -559,56 +625,6 @@ for (let i = 1; i <= totalPages; i++) {
         if (currentPage < totalPages) {
           showPage(currentPage + 1);
         }
-      });
-      
-      // Copy message functionality
-      document.querySelectorAll('.copy-message-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          const merchantId = this.getAttribute('data-merchant-id');
-          const tooltip = this.querySelector('.tooltip-text');
-          
-          // Find merchant data
-          const merchantData = JSON.parse(`${JSON.stringify(merchantList.find(m => m.merchant_id == merchantId))}`);
-          
-          if (merchantData) {
-            // Create message text
-            let messageText = `${merchantData.merchant_name},\n\n`;
-            messageText += t('messages.intro', 'Customized message text 00');
-            
-            // Add each problematic product
-            let hasProblematicProducts = false;
-            
-            merchantData.records.forEach(record => {
-              if (record.price_status !== 'acceptable') {
-                hasProblematicProducts = true;
-                
-                // Determine issue message
-                let issueMessage = '';
-                if (record.price_status === 'overpriced') {
-                  issueMessage = t('messages.overpriced', 'is priced above our recommended retail price');
-                } else if (record.price_status === 'underpriced') {
-                  issueMessage = t('messages.underpriced', 'is priced below our recommended retail price');
-                } else if (record.price_status === 'missing') {
-                  issueMessage = t('messages.missing', 'is missing pricing information');
-                }
-                
-                messageText += `• ${record.product_name} (${record.product_model}) on ${record.platform_name} ${issueMessage}.\n`;
-              }
-            });
-            
-            messageText += t('messages.outro1', 'Customized message text 01');
-            messageText += t('messages.outro2', 'Customized message text 02');
-            messageText += t('messages.outro3', 'Customized message text 03');
-            
-            navigator.clipboard.writeText(messageText).then(() => {
-              tooltip.classList.add('show');
-              setTimeout(() => {
-                tooltip.classList.remove('show');
-              }, 2000);
-            });
-          }
-        });
       });
       
       // Refresh button

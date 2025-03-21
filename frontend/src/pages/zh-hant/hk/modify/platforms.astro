@@ -1,11 +1,6 @@
 ---
 import DashboardLayout from "../../../../layouts/dashboardLayout.astro";
 
-// Fetch all platforms from API
-const apiBaseUrl = import.meta.env.HK_PUBLIC_API_BASE || '/api';
-let platforms = [];
-let latestUpdate = null;
-
 const region = "hk";
 
 // import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -24,6 +19,10 @@ const t = (key, defaultValue = '') => {
   
   return value || defaultValue || key;
 };
+
+const apiBaseUrl = import.meta.env.HK_PUBLIC_API_BASE || '/api';
+let platforms = [];
+let latestUpdate = null;
 
 try {
   const response = await fetch(`${apiBaseUrl}/get_platforms.php`);
@@ -582,12 +581,12 @@ for (let i = 1; i <= totalPages; i++) {
               cells[3].querySelector('p').textContent = formData.platform_url_price;
               cells[4].querySelector('p').textContent = formData.platform_url_merchant;
               
-              const existingBadge = cells[6].querySelector('.badge');
+              const existingBadge = cells[5].querySelector('.badge');
               if (existingBadge) {
                 const newBadge = existingBadge.cloneNode(true);
                 newBadge.className = existingBadge.className.replace('bg-gradient-success', '').replace('bg-gradient-danger', '');
-                newBadge.classList.add(formData.product_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger');
-                newBadge.textContent = formData.product_status;
+                newBadge.classList.add(formData.platform_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger');
+                newBadge.textContent = formData.platform_status;
                 existingBadge.replaceWith(newBadge);
               }
               

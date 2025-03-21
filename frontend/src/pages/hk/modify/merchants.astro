@@ -590,12 +590,12 @@ for (let i = 1; i <= totalPages; i++) {
               cells[3].querySelector('p').textContent = formData.phone;
               cells[4].querySelector('p').textContent = formData.address;
               
-              const existingBadge = cells[6].querySelector('.badge');
+              const existingBadge = cells[5].querySelector('.badge');
               if (existingBadge) {
                 const newBadge = existingBadge.cloneNode(true);
                 newBadge.className = existingBadge.className.replace('bg-gradient-success', '').replace('bg-gradient-danger', '');
-                newBadge.classList.add(formData.product_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger');
-                newBadge.textContent = formData.product_status;
+                newBadge.classList.add(formData.merchant_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger');
+                newBadge.textContent = formData.merchant_status;
                 existingBadge.replaceWith(newBadge);
               }
 

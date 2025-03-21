@@ -16,7 +16,7 @@
       "search": "搜索",
       "view": "查看",
       "ok": "确定",
-      "lastUpdated": "最后更新"
+      "lastUpdated": "最后更新: "
     },
     "navigation": {
       "mainPage": "主页",
@@ -78,8 +78,8 @@
       "maxPrice": "最高可接受价格",
       "status": "状态",
       "description": "描述",
-      "createdAt": "创建时间",
-      "updatedAt": "最后更新",
+      "createdAt": "创建时间: ",
+      "updatedAt": "最后更新: ",
       "active": "启用",
       "inactive": "停用",
       "updateSuccess": "产品更新成功！",
@@ -104,8 +104,8 @@
       "phone": "电话",
       "address": "地址",
       "status": "状态",
-      "createdAt": "创建时间",
-      "updatedAt": "最后更新",
+      "createdAt": "创建时间: ",
+      "updatedAt": "最后更新: ",
       "active": "启用",
       "inactive": "停用",
       "updateSuccess": "商户更新成功！",
@@ -126,8 +126,8 @@
       "productUrl": "产品网址",
       "merchantUrl": "商户网址",
       "status": "状态",
-      "createdAt": "创建时间",
-      "updatedAt": "最后更新",
+      "createdAt": "创建时间: ",
+      "updatedAt": "最后更新: ",
       "active": "启用",
       "inactive": "停用",
       "updateSuccess": "平台更新成功！",
@@ -155,5 +155,18 @@
     "errors": {
       "apiError": "从API获取数据时出错",
       "generalError": "发生错误，请重试。"
+    },
+    "sidebar": {
+      "mainPage": "主页",
+      "modifyItems": "修改项目",
+      "documentations": "文档",
+      "priceRecords": "价格记录",
+      "products": "产品",
+      "merchants": "商家",
+      "platforms": "平台",
+      "userManual": "用户手册",
+      "developerManual": "开发者手册",
+      "regionSelection": "地区选择",
+      "brandName": "监控系统"
     }
 }

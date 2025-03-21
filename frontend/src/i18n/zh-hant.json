@@ -16,7 +16,7 @@
       "search": "搜尋",
       "view": "查看",
       "ok": "確定",
-      "lastUpdated": "最後更新"
+      "lastUpdated": "最後更新: "
     },
     "navigation": {
       "mainPage": "主頁",
@@ -78,8 +78,8 @@
       "maxPrice": "最高可接受價格",
       "status": "狀態",
       "description": "描述",
-      "createdAt": "創建時間",
-      "updatedAt": "最後更新",
+      "createdAt": "創建時間: ",
+      "updatedAt": "最後更新: ",
       "active": "啟用",
       "inactive": "停用",
       "updateSuccess": "產品更新成功！",
@@ -104,8 +104,8 @@
       "phone": "電話",
       "address": "地址",
       "status": "狀態",
-      "createdAt": "創建時間",
-      "updatedAt": "最後更新",
+      "createdAt": "創建時間: ",
+      "updatedAt": "最後更新: ",
       "active": "啟用",
       "inactive": "停用",
       "updateSuccess": "商戶更新成功！",
@@ -126,8 +126,8 @@
       "productUrl": "產品網址",
       "merchantUrl": "商戶網址",
       "status": "狀態",
-      "createdAt": "創建時間",
-      "updatedAt": "最後更新",
+      "createdAt": "創建時間: ",
+      "updatedAt": "最後更新: ",
       "active": "啟用",
       "inactive": "停用",
       "updateSuccess": "平台更新成功！",
@@ -155,5 +155,18 @@
     "errors": {
       "apiError": "從API獲取數據時出錯",
       "generalError": "發生錯誤。請重試。"
+    },
+    "sidebar": {
+      "mainPage": "主頁",
+      "modifyItems": "修改項目",
+      "documentations": "文檔",
+      "priceRecords": "價格紀錄",
+      "products": "產品",
+      "merchants": "商家",
+      "platforms": "平台",
+      "userManual": "用戶手冊",
+      "developerManual": "開發者手冊",
+      "regionSelection": "地區選擇",
+      "brandName": "監控系統"
     }
 }

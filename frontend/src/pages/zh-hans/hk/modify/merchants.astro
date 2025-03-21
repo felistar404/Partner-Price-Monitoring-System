@@ -1,11 +1,6 @@
 ---
 import DashboardLayout from "../../../../layouts/dashboardLayout.astro";
 
-// Fetch all merchants from API
-const apiBaseUrl = import.meta.env.HK_PUBLIC_API_BASE || '/api';
-let merchants = [];
-let latestUpdate = null;
-
 const region = "hk";
 
 // import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -24,6 +19,10 @@ const t = (key, defaultValue = '') => {
   
   return value || defaultValue || key;
 };
+
+const apiBaseUrl = import.meta.env.HK_PUBLIC_API_BASE || '/api';
+let merchants = [];
+let latestUpdate = null;
 
 try {
   const response = await fetch(`${apiBaseUrl}/get_merchants.php`);
@@ -590,12 +589,12 @@ for (let i = 1; i <= totalPages; i++) {
               cells[3].querySelector('p').textContent = formData.phone;
               cells[4].querySelector('p').textContent = formData.address;
               
-              const existingBadge = cells[6].querySelector('.badge');
+              const existingBadge = cells[5].querySelector('.badge');
               if (existingBadge) {
                 const newBadge = existingBadge.cloneNode(true);
                 newBadge.className = existingBadge.className.replace('bg-gradient-success', '').replace('bg-gradient-danger', '');
-                newBadge.classList.add(formData.product_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger');
-                newBadge.textContent = formData.product_status;
+                newBadge.classList.add(formData.merchant_status === 'active' ? 'bg-gradient-success' : 'bg-gradient-danger');
+                newBadge.textContent = formData.merchant_status;
                 existingBadge.replaceWith(newBadge);
               }
 
@@ -612,7 +611,7 @@ for (let i = 1; i <= totalPages; i++) {
               updatedRow.classList.add('row-updated');
               setTimeout(() => {
                 updatedRow.classList.remove('row-updated');
-              }, 2000);
+              }, 4000);
             }
           } else {
             showAlert('Error', result.message || 'Failed to update merchant. Please try again.', 'error');

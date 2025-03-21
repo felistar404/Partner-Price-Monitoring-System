@@ -1,5 +1,20 @@
 ---
-// Props that can be passed to this component
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import translations from '../../i18n';
+
+const { currentLocale, url } = Astro;
+const t = (key, defaultValue = '') => {
+  const keys = key.split('.');
+  let value = translations[currentLocale] || {};
+  
+  for (const k of keys) {
+    if (!value || !value[k]) return defaultValue || key;
+    value = value[k];
+  }
+  
+  return value || defaultValue || key;
+};
+
 interface Props {
   activePage?: string;
   mainPage?: string;
@@ -13,9 +28,7 @@ interface Props {
 }
 
 // HTML path for links
-const htmlPath = ""; // adjust if needed
-
-// Default values for props
+const htmlPath = ""; 
 const { 
   activePage = "main",
   mainPage = "main",
@@ -28,38 +41,70 @@ const {
   }
 } = Astro.props;
 
-const basePath = region ? `/${region}` : "";
+let currentPath = url.pathname;
+const localePattern = new RegExp(`^/(${["en", "zh-hant", "zh-hans"].join("|")})/`);
+currentPath = currentPath.replace(localePattern, '');
+if (!currentPath) currentPath = '';
 
-// Main display pages
+const basePath = region ? 
+  (currentLocale === 'en' ? `/${region}` : `/${currentLocale}/${region}`) 
+  : (currentLocale === 'en' ? '' : `/${currentLocale}`);
+
+// Navigation items
 const displayItems = [
-  { id: "main", icon: "table_view", label: "Price Records", href: htmlPath + `${basePath}/` },
+  { 
+    id: "main", 
+    icon: "table_view", 
+    label: t("sidebar.priceRecords", "Price Records"), 
+    href: `${basePath}/` 
+  },
 ];
 
-// Modify items
 const modifyItems = [
-  { id: "modify-products", icon: "inventory_2", label: "Products", href: `${basePath}/modify/products` },
-  { id: "modify-merchants", icon: "store", label: "Merchants", href: `${basePath}/modify/merchants` },
-  { id: "modify-platforms", icon: "devices", label: "Platforms", href: `${basePath}/modify/platforms` }
+  { 
+    id: "modify-products", 
+    icon: "inventory_2", 
+    label: t("sidebar.products", "Products"), 
+    href: `${basePath}/modify/products` 
+  },
+  { 
+    id: "modify-merchants", 
+    icon: "store", 
+    label: t("sidebar.merchants", "Merchants"), 
+    href: `${basePath}/modify/merchants` 
+  },
+  { 
+    id: "modify-platforms", 
+    icon: "devices", 
+    label: t("sidebar.platforms", "Platforms"), 
+    href: `${basePath}/modify/platforms` 
+  }
 ];
 
-// Documentation items
+// For documentationItems, you might want to use a different approach
+// if docs are not available in all languages:
 const documentationItems = [
-  { id: "user-manual", icon: "person", label: "User Manual", href: htmlPath + "/docs/user-manual.html" },
-  { id: "developer-manual", icon: "code", label: "Developer Manual", href: htmlPath + "/docs/developer-manual.html" }
+  { 
+    id: "user-manual", 
+    icon: "person", 
+    label: t("sidebar.userManual", "User Manual"), 
+    href: currentLocale === 'en' ? "/docs/user-manual.html" : `/${currentLocale}/docs/user-manual.html` 
+  },
+  { 
+    id: "developer-manual", 
+    icon: "code", 
+    label: t("sidebar.developerManual", "Developer Manual"), 
+    href: currentLocale === 'en' ? "/docs/developer-manual.html" : `/${currentLocale}/docs/developer-manual.html`
+  }
 ];
 
-// Function to determine if a navigation item is active
 function isActive(itemId) {
-  // If we're on a specific page (like a modify page), prioritize that over mainPage
   if (page && page === itemId) {
     return true;
   }
-  
   if (activePage && activePage === itemId) {
     return true;
   }
-  
-  // Only consider mainPage for display items if we're not on a specific page
   if (!page && !activePage && displayItems.some(item => item.id === itemId)) {
     return mainPage === itemId;
   }
@@ -69,11 +114,10 @@ function isActive(itemId) {
 ---
 
 <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2" id="sidenav-main">
-  <!-- Sidenav header with brand name only (no logo) -->
   <div class="sidenav-header">
     <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
     <a class="navbar-brand d-flex justify-content-center align-items-center px-4 py-3 m-0" href={brand.href}>
-      <span class="text-sm text-dark">{brand.name}</span>
+      <span class="text-sm text-dark">{t("sidebar.brandName", brand.name)}</span>
     </a>
   </div>
   
@@ -82,10 +126,11 @@ function isActive(itemId) {
   <!-- Navigation items -->
   <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
     <ul class="navbar-nav">
-      <!-- Main Pages section -->
       <li class="nav-item mt-3">
         <div class="section-header">
-          <span class="text-uppercase text-xs text-dark font-weight-bolder opacity-5">Main Page</span>
+          <span class="text-uppercase text-xs text-dark font-weight-bolder opacity-5">
+            {t("sidebar.mainPage", "Main Page")}
+          </span>
         </div>
       </li>
 
@@ -101,10 +146,11 @@ function isActive(itemId) {
         </li>
       ))}
       
-      <!-- Modify Items section -->
       <li class="nav-item mt-3">
         <div class="section-header">
-          <span class="text-uppercase text-xs text-dark font-weight-bolder opacity-5">Modify Items</span>
+          <span class="text-uppercase text-xs text-dark font-weight-bolder opacity-5">
+            {t("sidebar.modifyItems", "Modify Items")}
+          </span>
         </div>
       </li>
       
@@ -120,10 +166,11 @@ function isActive(itemId) {
         </li>
       ))}
       
-      <!-- Documentation section -->
       <li class="nav-item mt-3">
         <div class="section-header">
-          <span class="text-uppercase text-xs text-dark font-weight-bolder opacity-5">Documentations</span>
+          <span class="text-uppercase text-xs text-dark font-weight-bolder opacity-5">
+            {t("sidebar.documentations", "Documentations")}
+          </span>
         </div>
       </li>
       
@@ -141,10 +188,13 @@ function isActive(itemId) {
     </ul>
   </div>
   
-  <!-- Footer links -->
   <div class="sidenav-footer position-absolute w-100 bottom-0">
     <div class="mx-3">
-      <a class="btn btn-outline-dark mt-4 w-100 mb-3" href={htmlPath + "/index.html"} type="button">Region Selection</a>
+      <a class="btn btn-outline-dark mt-4 w-100 mb-3" 
+         href={currentLocale === 'en' ? "/" : `/${currentLocale}/`} 
+         type="button">
+        {t("sidebar.regionSelection", "Region Selection")}
+      </a>
     </div>
   </div>
 </aside>
