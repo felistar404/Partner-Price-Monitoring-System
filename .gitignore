@@ -8,6 +8,7 @@ backend/reference/
 backend/tmp/
 backend/logs/
 backend/public/hk/api/pricebook.php
+backend/src/save_pricebook.php
 
 
 #-----------------#
@@ -53,7 +54,3 @@ Thumbs.db
 .vscode/
 *.sublime-project
 *.sublime-workspace
-
-#-----------------#
-#   frontend-v2   #
-frontend-v2

@@ -207,6 +207,29 @@ for (let i = 1; i <= totalPages; i++) {
     .pagination .page-item.disabled .page-link {
       color: #6c757d;
     }
+    
+    .alert.alert-transparent {
+      background-color: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 1rem 0;
+    }
+    
+    .alert.alert-transparent i {
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+    
+    .alert.alert-transparent h4 {
+      color: #344767;
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    .alert.alert-transparent p {
+      color: #7b809a;
+    }
   </style>
 
   <!-- Main Content -->
@@ -356,7 +379,7 @@ for (let i = 1; i <= totalPages; i++) {
               </div>
               <div class="col-md-6">
                 <div class="input-group input-group-static mb-3">
-                  <label for="merchant_status" class="ms-0">{t('merchants.status', 'Address')}</label>
+                  <label for="merchant_status" class="ms-0">{t('merchants.status', 'Status')}</label>
                   <select class="form-control" id="merchant_status" name="merchant_status" required>
                     <option value="active">{t('merchants.active', 'Active')}</option>
                     <option value="inactive">{t('merchants.inactive', 'Inactive')}</option>
@@ -495,7 +518,7 @@ for (let i = 1; i <= totalPages; i++) {
         if (visibleItems === 0) {
           const noResultsRow = document.createElement('tr');
           noResultsRow.id = 'no-results-row';
-          noResultsRow.innerHTML = '<td colspan="7" class="text-center py-4"><div class="alert alert-info mb-0"><h4><i class="material-symbols-rounded">search_off</i> No results found</h4><p>No merchants match your search criteria.</p></div></td>';
+          noResultsRow.innerHTML = '<td colspan="7" class="text-center py-4"><div class="alert alert-transparent mb-0"><h4><i class="material-symbols-rounded">search_off</i> No results found</h4><p>No merchants match your search criteria.</p></div></td>';
           
           const existingNoResults = document.getElementById('no-results-row');
           if (!existingNoResults) {
@@ -612,7 +635,7 @@ for (let i = 1; i <= totalPages; i++) {
               updatedRow.classList.add('row-updated');
               setTimeout(() => {
                 updatedRow.classList.remove('row-updated');
-              }, 2000);
+              }, 4000);
             }
           } else {
             showAlert('Error', result.message || 'Failed to update merchant. Please try again.', 'error');

@@ -73,6 +73,7 @@
       "productId": "編號",
       "productName": "產品名稱",
       "productModel": "產品型號",
+      "productSeries": "產品系列",
       "referencePrice": "參考價格",
       "minPrice": "最低可接受價格",
       "maxPrice": "最高可接受價格",

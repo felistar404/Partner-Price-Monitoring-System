@@ -73,6 +73,7 @@
       "productId": "ID",
       "productName": "Product Name",
       "productModel": "Product Model",
+      "productSeries": "Product Series",
       "referencePrice": "Reference Price",
       "minPrice": "Min. Acceptable Price",
       "maxPrice": "Max. Acceptable Price",

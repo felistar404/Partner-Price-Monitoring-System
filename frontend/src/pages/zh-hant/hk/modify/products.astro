@@ -198,6 +198,30 @@ for (let i = 1; i <= totalPages; i++) {
     .row-updated {
       animation: highlightRow 2s ease-out;
     }
+
+    .alert.alert-transparent {
+      background-color: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 1rem 0;
+    }
+    
+    .alert.alert-transparent i {
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+    
+    .alert.alert-transparent h4 {
+      color: #344767;
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    .alert.alert-transparent p {
+      color: #7b809a;
+    }
+
   </style>
 
   <!-- Main Content -->
@@ -276,7 +300,7 @@ for (let i = 1; i <= totalPages; i++) {
                   ) : (
                     <tr>
                       <td colspan="8" class="text-center py-4">
-                        <div class="alert alert-info mb-0">
+                        <div class="alert alert-transparent mb-0">
                           <h4><i class="material-symbols-rounded">info</i> {t('products.noResultsFound', 'No products found')}</h4>
                           <p>{t('products.noResultsInDB', 'There are no products available in the database.')}</p>
                         </div>
@@ -508,7 +532,7 @@ for (let i = 1; i <= totalPages; i++) {
         if (visibleItems === 0) {
           const noResultsRow = document.createElement('tr');
           noResultsRow.id = 'no-results-row';
-          noResultsRow.innerHTML = '<td colspan="8" class="text-center py-4"><div class="alert alert-info mb-0"><h4><i class="material-symbols-rounded">search_off</i> No results found</h4><p>No products match your search criteria.</p></div></td>';
+          noResultsRow.innerHTML = '<td colspan="8" class="text-center py-4"><div class="alert alert-transparent mb-0"><h4><i class="material-symbols-rounded">search_off</i> No results found</h4><p>No products match your search criteria.</p></div></td>';
           
           const existingNoResults = document.getElementById('no-results-row');
           if (!existingNoResults) {

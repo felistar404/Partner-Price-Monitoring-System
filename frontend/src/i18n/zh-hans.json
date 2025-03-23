@@ -73,6 +73,7 @@
       "productId": "编号",
       "productName": "产品名称",
       "productModel": "产品型号",
+      "productSeries": "产品系列",
       "referencePrice": "参考价格",
       "minPrice": "最低可接受价格",
       "maxPrice": "最高可接受价格",

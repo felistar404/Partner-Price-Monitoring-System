@@ -24,32 +24,24 @@ CREATE TABLE platforms (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- -- product categorization
--- CREATE TABLE product_categories (
---     category_id INT AUTO_INCREMENT PRIMARY KEY,
---     category_name VARCHAR(100) NOT NULL,
---     parent_id INT DEFAULT NULL,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
---     FOREIGN KEY (parent_id) REFERENCES product_categories(category_id) ON DELETE SET NULL
--- ) ENGINE=InnoDB;
-
 -- product details
 CREATE TABLE products (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
-    -- category_id INT,
-    product_name VARCHAR(255) NOT NULL,
     product_model VARCHAR(100) NOT NULL,
+    product_series VARCHAR(100) DEFAULT NULL,
     reference_price DECIMAL(10, 2) NOT NULL,
     min_acceptable_price DECIMAL(10, 2) NOT NULL,
     max_acceptable_price DECIMAL(10, 2) NOT NULL,
     product_status ENUM('active', 'inactive') DEFAULT 'active' COMMENT 'If product does not need to be monitored, set to inactive, and vice versa',
     product_description TEXT,
-    -- product_image VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    -- FOREIGN KEY (category_id) REFERENCES product_categories(category_id) ON DELETE SET NULL,
     UNIQUE INDEX (product_model)
+) ENGINE=InnoDB;
+
+CREATE TABLE generals (
+    general_id INT AUTO_INCREMENT PRIMARY KEY,
+    multiplier DECIMAL(10, 2) DEFAULT 3.0
 ) ENGINE=InnoDB;
 
 -- merchants
@@ -115,31 +107,6 @@ CREATE TABLE price_records (
     FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE CASCADE,
     FOREIGN KEY (platform_id) REFERENCES platforms(platform_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
-
--- crawl logs
--- CREATE TABLE crawl_logs (
---     log_id INT AUTO_INCREMENT PRIMARY KEY,
---     platform_id INT NOT NULL,
---     crawl_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     status ENUM('completed', 'failed') NOT NULL,
---     crawled_products INT DEFAULT 0,
---     error_message TEXT,
---     crawl_description TEXT
--- ) ENGINE=InnoDB;
-
--- -- notification logs (To ensure not to duplicate the notification email in short period of time - Automation)
--- CREATE TABLE notification_logs (
---     notification_id INT AUTO_INCREMENT PRIMARY KEY,
---     merchant_id INT NOT NULL,
---     product_id INT NOT NULL,
---     notification_type ENUM('missing_price', 'overpriced', 'underpriced') NOT NULL,
---     message TEXT NOT NULL,
---     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     status ENUM('pending', 'sent', 'failed') DEFAULT 'pending',
---     error_message TEXT,
---     FOREIGN KEY (merchant_id) REFERENCES merchants(merchant_id) ON DELETE CASCADE,
---     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
--- ) ENGINE=InnoDB;
 
 -- cooldown references (refresh buttons)
 CREATE TABLE refresh_cooldowns (

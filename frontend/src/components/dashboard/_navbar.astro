@@ -67,10 +67,10 @@ const zhHansUrl = getRelativeLocaleUrl("zh-hans", currentPath);
       </div>
       
       <!-- Right-side navbar items -->
-      <ul class="navbar-nav d-flex align-items-center justify-content-end">
+      <ul class="navbar-nav px-3 d-flex align-items-center justify-content-end">
         
         <!-- Mobile menu button -->
-        <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+        <li class="nav-item px-3 d-xl-none d-flex align-items-center">
           <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
             <div class="sidenav-toggler-inner">
               <i class="sidenav-toggler-line"></i>
@@ -173,5 +173,45 @@ const zhHansUrl = getRelativeLocaleUrl("zh-hans", currentPath);
 
   .dropdown-item.active-language {
     background-color: rgba(76, 175, 80, 0.1);
+  }
+
+  /* Updated CSS to align the sidebar toggle button */
+  .sidenav-toggler-inner {
+    width: 18px;
+    height: 18px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .sidenav-toggler-line {
+    height: 2px;
+    background-color: #344767;
+    margin-bottom: 3px;
+    transition: all 0.15s ease;
+  }
+
+  .sidenav-toggler-line:last-child {
+    margin-bottom: 0;
+  }
+
+  .nav-link.text-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0;
+    height: 100%;
+  }
+
+  .navbar-nav .nav-item {
+    display: flex;
+    align-items: center;
+    height: 40px;
+  }
+
+  .nav-item.d-xl-none {
+    /* padding-right: 0.75rem !important;
+    padding-left: 0.75rem !important; */
   }
 </style>
