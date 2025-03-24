@@ -4,7 +4,7 @@ USE price_monitoring_system;
 
 -- data init for price platform (special cases)
 INSERT INTO platforms (platform_name, platform_url, platform_url_merchant, platform_url_price, platform_status) VALUES 
-('Price.com.hk', 'https://www.price.com.hk/', 'starshop.php?p=', 'product.php?p=', 'active');
+('Price.com.hk', 'https://www.price.com.hk/', 'starshop.php?p=', 'product.php?p=', 'active'),
 ('WCSLMall', 'https://www.wcslmall.com/', NULL, NULL, 'inactive'),
 ('CentralField', 'https://www.centralfield.com/', NULL, NULL, 'inactive'),
 ('BUYMORE', 'https://www.buymore.hk/', NULL, NULL, 'inactive'),

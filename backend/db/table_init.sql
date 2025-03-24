@@ -16,8 +16,8 @@ DROP TABLE IF EXISTS refresh_cooldowns;
 CREATE TABLE platforms (
     platform_id INT AUTO_INCREMENT PRIMARY KEY,
     platform_name VARCHAR(100) NOT NULL,
-    platform_url VARCHAR(255) NOT NULL COMMENT 'url prefix',
-    platform_url_price VARCHAR(255) NOT NULL COMMENT 'url price suffix',
+    platform_url VARCHAR(255) DEFAULT NULL COMMENT 'url prefix',
+    platform_url_price VARCHAR(255) DEFAULT NULL COMMENT 'url price suffix',
     platform_url_merchant VARCHAR(255) DEFAULT NULL COMMENT 'url merchant suffix',
     platform_status ENUM('active', 'inactive') DEFAULT 'active' COMMENT 'If platform does not need to be monitored, set to inactive, and vice versa',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
