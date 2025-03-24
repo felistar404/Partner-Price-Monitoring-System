@@ -25,8 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // validate the data
     if(
         !empty($data->product_id) &&
-        !empty($data->product_name) &&
         !empty($data->product_model) &&
+        !empty($data->product_series) &&
         isset($data->reference_price) &&
         isset($data->min_acceptable_price) &&
         isset($data->max_acceptable_price) &&
@@ -42,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $product_description = htmlspecialchars(strip_tags($data->product_description ?? ''));
     
         $query = "UPDATE products 
-                SET product_name = ?, 
-                    product_model = ?, 
+                SET product_model = ?, 
+                    product_series = ?, 
                     reference_price = ?, 
                     min_acceptable_price = ?, 
                     max_acceptable_price = ?, 
@@ -54,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $stmt = $conn->prepare($query);
         $stmt->bind_param("ssdddssi", 
-            $product_name, 
-            $product_model, 
+            $product_model,
+            $data->product_series,
             $reference_price, 
             $min_acceptable_price, 
             $max_acceptable_price, 
@@ -64,12 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $product_id
         );
         if($stmt->execute()) {
-            // success response
             $response["success"] = true;
             $response["message"] = "Product was updated successfully.";
             http_response_code(200);
         } else {
-            // error in execution
             $response["success"] = false;
             $response["message"] = "Unable to update product.";
             http_response_code(503);
@@ -77,14 +75,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
         $stmt->close();
     } else {
-        // required data is missing
         $response["success"] = false;
         $response["message"] = "Unable to update product. Data is incomplete.";
         http_response_code(400);
     }   
     echo json_encode($response);
 } else {
-    // Method not allowed
     http_response_code(405);
     echo json_encode(["success" => false, "message" => "Method not allowed"]);
 }

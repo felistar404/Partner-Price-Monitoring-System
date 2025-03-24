@@ -304,7 +304,7 @@ for (let i = 1; i <= totalPages; i++) {
                   ) : (
                     <tr>
                       <td colspan="7" class="text-center py-4">
-                        <div class="alert alert-info mb-0">
+                        <div class="alert alert-transparent mb-0">
                           <h4><i class="material-symbols-rounded">info</i>{t('merchants.noResultsFoundTitle', ' No merchants found')}</h4>
                           <p>{t('merchants.noResultsInDB', 'There are no merchants available in the database.')}</p>
                         </div>
@@ -561,11 +561,9 @@ for (let i = 1; i <= totalPages; i++) {
         });
       });
       
-      // Save button click handler
       document.getElementById('saveMerchantBtn')?.addEventListener('click', async function() {
         const form = document.getElementById('editMerchantForm');
         
-        // Basic form validation & fill the form data
         if (!form.checkValidity()) {
           form.reportValidity();
           return;

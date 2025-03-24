@@ -9,6 +9,11 @@ backend/tmp/
 backend/logs/
 backend/public/hk/api/pricebook.php
 backend/src/save_pricebook.php
+backend/files/
+backend/src/cancel_flag.txt
+backend/src/result.txt
+backend/src/detect_ro.php
+backend/src/test.php
 
 
 #-----------------#
